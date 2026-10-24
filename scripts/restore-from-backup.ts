@@ -32,11 +32,11 @@ const TABLES_IN_ORDER = [
   "membership_plans",
   "achievements",
   "exercises",
-  "invitation_codes",
-  "clients",
   "routines",
   "routine_days",
   "routine_exercises",
+  "clients",
+  "invitation_codes",
   "client_routines",
   "workout_sessions",
   "exercise_logs",
@@ -102,4 +102,4 @@ async function main() {
 main().catch((err) => {
   console.error("💥 Error fatal en la restauración:", err);
   process.exit(1);
-});
+})

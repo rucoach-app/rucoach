@@ -10,429 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
 CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
 
--- 2. FUNCTIONS
-CREATE OR REPLACE FUNCTION public.update_updated_at_column()
- RETURNS trigger
- LANGUAGE plpgsql
- SET search_path TO ''
-AS $function$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.is_admin()
- RETURNS boolean
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$ SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'); $function$;
-
-CREATE OR REPLACE FUNCTION public.is_admin_or_receptionist()
- RETURNS boolean
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$ SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'receptionist')); $function$;
-
-CREATE OR REPLACE FUNCTION public.add_user_xp(p_user_id uuid, p_amount integer)
- RETURNS integer
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-DECLARE
-  v_new_xp integer;
-BEGIN
-  UPDATE public.profiles
-  SET xp_points = xp_points + p_amount
-  WHERE id = p_user_id
-  RETURNING xp_points INTO v_new_xp;
-  RETURN v_new_xp;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.update_user_level()
- RETURNS trigger
- LANGUAGE plpgsql
- SET search_path TO ''
-AS $function$
-BEGIN
-  -- Update level based on XP (100 XP per level)
-  NEW.level := LEAST(100, (NEW.xp_points / 100)::integer + 1);
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.update_user_streak()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-BEGIN
-  -- Update last_workout_at to today
-  UPDATE public.profiles
-  SET 
-    last_workout_at = NOW(),
-    streak_days = CASE
-      WHEN DATE(last_workout_at) = CURRENT_DATE - INTERVAL '1 day' THEN streak_days + 1
-      WHEN DATE(last_workout_at) = CURRENT_DATE THEN streak_days
-      ELSE 1  -- Reset streak if more than 1 day missed
-    END
-  WHERE id = NEW.user_id;
-  
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.update_client_status()
- RETURNS trigger
- LANGUAGE plpgsql
- SET search_path TO ''
-AS $function$
-BEGIN
-  IF NEW.membership_end IS NOT NULL THEN
-    IF NEW.membership_end < CURRENT_DATE THEN
-      NEW.status = 'expired';
-    ELSIF NEW.membership_end <= CURRENT_DATE + INTERVAL '7 days' THEN
-      NEW.status = 'expiring_soon';
-    ELSIF NEW.status IN ('expired', 'expiring_soon') THEN
-      NEW.status = 'active';
-    END IF;
-  END IF;
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.sync_client_status_to_profile()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-BEGIN
-  IF (NEW.user_id IS NOT NULL AND NEW.status IS DISTINCT FROM OLD.status) THEN
-    UPDATE public.profiles
-    SET subscription_status = NEW.status
-    WHERE id = NEW.user_id;
-  END IF;
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.sync_profile_status_to_client()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-BEGIN
-  IF (NEW.subscription_status IS DISTINCT FROM OLD.subscription_status) THEN
-    UPDATE public.clients
-    SET status = NEW.subscription_status
-    WHERE user_id = NEW.id;
-  END IF;
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.sync_client_avatar_from_profile()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-begin
-  if tg_op = 'UPDATE' and new.avatar_url is distinct from old.avatar_url then
-    update public.clients
-    set avatar_url = new.avatar_url,
-        updated_at = now()
-    where user_id = new.id;
-  end if;
-  return new;
-end;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.sync_client_last_session_from_workout()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-begin
-  if tg_op = 'INSERT' then
-    if new.status = 'completed' then
-      update public.clients c
-      set last_session_at = greatest(
-        coalesce(c.last_session_at, '-infinity'::timestamptz),
-        new.started_at
-      )
-      where c.id = new.client_id;
-    end if;
-  elsif tg_op = 'UPDATE' then
-    if new.status = 'completed'
-       and (
-         old.status is distinct from new.status
-         or old.started_at is distinct from new.started_at
-       ) then
-      update public.clients c
-      set last_session_at = greatest(
-        coalesce(c.last_session_at, '-infinity'::timestamptz),
-        new.started_at
-      )
-      where c.id = new.client_id;
-    end if;
-  end if;
-  return new;
-end;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.sync_payment_to_client_membership()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-BEGIN
-  -- Solo actualizamos si el pago tiene fechas de período
-  IF (NEW.period_start IS NOT NULL OR NEW.period_end IS NOT NULL) THEN
-    UPDATE public.clients
-    SET 
-      current_plan_id = NEW.plan_id,
-      membership_start = NEW.period_start,
-      membership_end = NEW.period_end,
-      status = 'active', -- Al registrar un pago con fechas, el cliente se activa
-      last_payment_date = NEW.paid_at
-    WHERE id = NEW.client_id;
-  END IF;
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-BEGIN
-  INSERT INTO public.profiles (id, email, full_name, role)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'client')
-  );
-  RETURN NEW;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.register_first_admin(p_user_id uuid, p_email text, p_setup_code text)
- RETURNS boolean
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-DECLARE
-  v_admin_count integer;
-  v_valid_code boolean;
-BEGIN
-  -- Check if setup code is valid and unused
-  SELECT EXISTS(
-    SELECT 1 FROM public.admin_setup
-    WHERE setup_code = p_setup_code
-    AND is_used = false
-  ) INTO v_valid_code;
-  
-  IF NOT v_valid_code THEN
-    RAISE EXCEPTION 'Invalid or used setup code';
-  END IF;
-  
-  -- Check if there are already admins
-  SELECT COUNT(*) FROM public.profiles WHERE role = 'admin' INTO v_admin_count;
-  
-  IF v_admin_count > 0 THEN
-    RAISE EXCEPTION 'Admin already exists. Only one coach per gym.';
-  END IF;
-  
-  -- Mark code as used
-  UPDATE public.admin_setup
-  SET is_used = true, admin_email = p_email, used_at = now()
-  WHERE setup_code = p_setup_code;
-  
-  -- Update user profile to admin
-  UPDATE public.profiles
-  SET role = 'admin'
-  WHERE id = p_user_id;
-  
-  RETURN true;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.use_invitation_code_atomic(code_text text, user_id_val uuid)
- RETURNS jsonb
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-DECLARE
-  inv_record record;
-BEGIN
-  SELECT id, client_id, created_by, for_role, times_used, max_uses, expires_at
-  INTO inv_record
-  FROM public.invitation_codes
-  WHERE upper(trim(code)) = upper(trim(code_text))
-    AND is_active = true
-    AND times_used < max_uses
-    AND (expires_at IS NULL OR expires_at > now())
-  FOR UPDATE;
-
-  IF NOT FOUND THEN
-    RETURN jsonb_build_object(
-      'success', false,
-      'error', 'Código inválido, expirado o ya usado',
-      'client_id', null,
-      'created_by', null,
-      'for_role', 'client'
-    );
-  END IF;
-
-  UPDATE public.invitation_codes
-  SET
-    times_used = times_used + 1,
-    used_by_user_id = user_id_val
-  WHERE id = inv_record.id;
-
-  RETURN jsonb_build_object(
-    'success', true,
-    'error', null,
-    'client_id', inv_record.client_id,
-    'created_by', inv_record.created_by,
-    'for_role', coalesce(inv_record.for_role, 'client')
-  );
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.get_user_stats(p_user_id uuid)
- RETURNS TABLE(total_workouts bigint, total_sets bigint, total_xp integer, current_level integer, current_streak integer, achievements_unlocked bigint, total_prs bigint)
- LANGUAGE plpgsql
- SET search_path TO ''
-AS $function$
-BEGIN
-  RETURN QUERY
-  SELECT 
-    COUNT(DISTINCT el.workout_session_id)::bigint,
-    COUNT(DISTINCT el.id)::bigint,
-    COALESCE(p.xp_points, 0)::integer,
-    COALESCE(p.level, 1)::integer,
-    COALESCE(p.streak_days, 0)::integer,
-    COUNT(DISTINCT ua.achievement_id)::bigint,
-    COUNT(DISTINCT CASE WHEN el.is_pr THEN 1 END)::bigint
-  FROM public.profiles p
-  LEFT JOIN public.exercise_logs el ON p.id = el.user_id
-  LEFT JOIN public.user_achievements ua ON p.id = ua.user_id
-  WHERE p.id = p_user_id
-  GROUP BY p.id, p.xp_points, p.level, p.streak_days;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.check_achievements(p_user_id uuid)
- RETURNS TABLE(achievement_id uuid, achievement_name text)
- LANGUAGE plpgsql
- SET search_path TO ''
-AS $function$
-BEGIN
-  RETURN QUERY
-  SELECT a.id, a.name
-  FROM public.achievements a
-  WHERE a.id NOT IN (
-    SELECT achievement_id FROM public.user_achievements
-    WHERE user_id = p_user_id
-  )
-  LIMIT 1;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.get_user_client(p_user_id uuid)
- RETURNS TABLE(client_id text, full_name text, status text, admin_approved boolean, membership_end date, current_plan_id text)
- LANGUAGE plpgsql
- SET search_path TO ''
-AS $function$
-BEGIN
-  RETURN QUERY
-  SELECT c.id, c.full_name, c.status, c.admin_approved, c.membership_end, c.current_plan_id
-  FROM public.clients c
-  WHERE c.user_id = p_user_id;
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.has_active_subscription(p_user_id uuid)
- RETURNS boolean
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-DECLARE
-  v_client_status text;
-  v_is_approved boolean;
-  v_membership_end date;
-BEGIN
-  SELECT c.status, c.admin_approved, c.membership_end
-  FROM public.clients c
-  WHERE c.user_id = p_user_id
-  INTO v_client_status, v_is_approved, v_membership_end;
-  
-  -- User must be approved and have active status and membership not expired
-  RETURN COALESCE(v_is_approved, false) 
-    AND v_client_status = 'active'
-    AND COALESCE(v_membership_end >= CURRENT_DATE, true);
-END;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.latest_completed_session_by_clients(client_ids text[])
- RETURNS TABLE(client_id text, started_at timestamp with time zone)
- LANGUAGE sql
- STABLE
- SET search_path TO 'public'
-AS $function$
-  select distinct on (ws.client_id)
-    ws.client_id,
-    ws.started_at
-  from public.workout_sessions ws
-  where ws.client_id = any(client_ids)
-    and ws.status = 'completed'
-  order by ws.client_id, ws.started_at desc;
-$function$;
-
-CREATE OR REPLACE FUNCTION public.client_achievement_session_rollups(p_client_id text, p_tz text)
- RETURNS jsonb
- LANGUAGE sql
- STABLE
- SET search_path TO 'public'
-AS $function$
-  select jsonb_build_object(
-    'lifetime_volume_kg', coalesce(sum(ws.total_volume_kg), 0)::double precision,
-    'early_workout_count', coalesce(sum(
-      case
-        when ws.started_at is not null
-         and extract(
-           hour from (
-             ws.started_at at time zone coalesce(nullif(trim(p_tz), ''), 'Europe/Madrid')
-           )
-         ) < 8
-        then 1
-        else 0
-      end
-    ), 0)::double precision,
-    'max_session_volume_kg', coalesce(max(ws.total_volume_kg), 0)::double precision
-  )
-  from public.workout_sessions ws
-  where ws.client_id = p_client_id;
-$function$;
-
--- 3. TABLES
+-- 2. TABLES
 CREATE TABLE public.profiles (
     id uuid NOT NULL,
     email text NOT NULL,
@@ -879,6 +457,428 @@ CREATE TABLE IF NOT EXISTS public.push_subscriptions (
 );
 
 
+-- 3. FUNCTIONS
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$ SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'); $function$;
+
+CREATE OR REPLACE FUNCTION public.is_admin_or_receptionist()
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$ SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'receptionist')); $function$;
+
+CREATE OR REPLACE FUNCTION public.add_user_xp(p_user_id uuid, p_amount integer)
+ RETURNS integer
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+DECLARE
+  v_new_xp integer;
+BEGIN
+  UPDATE public.profiles
+  SET xp_points = xp_points + p_amount
+  WHERE id = p_user_id
+  RETURNING xp_points INTO v_new_xp;
+  RETURN v_new_xp;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.update_user_level()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  -- Update level based on XP (100 XP per level)
+  NEW.level := LEAST(100, (NEW.xp_points / 100)::integer + 1);
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.update_user_streak()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  -- Update last_workout_at to today
+  UPDATE public.profiles
+  SET 
+    last_workout_at = NOW(),
+    streak_days = CASE
+      WHEN DATE(last_workout_at) = CURRENT_DATE - INTERVAL '1 day' THEN streak_days + 1
+      WHEN DATE(last_workout_at) = CURRENT_DATE THEN streak_days
+      ELSE 1  -- Reset streak if more than 1 day missed
+    END
+  WHERE id = NEW.user_id;
+  
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.update_client_status()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  IF NEW.membership_end IS NOT NULL THEN
+    IF NEW.membership_end < CURRENT_DATE THEN
+      NEW.status = 'expired';
+    ELSIF NEW.membership_end <= CURRENT_DATE + INTERVAL '7 days' THEN
+      NEW.status = 'expiring_soon';
+    ELSIF NEW.status IN ('expired', 'expiring_soon') THEN
+      NEW.status = 'active';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.sync_client_status_to_profile()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  IF (NEW.user_id IS NOT NULL AND NEW.status IS DISTINCT FROM OLD.status) THEN
+    UPDATE public.profiles
+    SET subscription_status = NEW.status
+    WHERE id = NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.sync_profile_status_to_client()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  IF (NEW.subscription_status IS DISTINCT FROM OLD.subscription_status) THEN
+    UPDATE public.clients
+    SET status = NEW.subscription_status
+    WHERE user_id = NEW.id;
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.sync_client_avatar_from_profile()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  if tg_op = 'UPDATE' and new.avatar_url is distinct from old.avatar_url then
+    update public.clients
+    set avatar_url = new.avatar_url,
+        updated_at = now()
+    where user_id = new.id;
+  end if;
+  return new;
+end;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.sync_client_last_session_from_workout()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  if tg_op = 'INSERT' then
+    if new.status = 'completed' then
+      update public.clients c
+      set last_session_at = greatest(
+        coalesce(c.last_session_at, '-infinity'::timestamptz),
+        new.started_at
+      )
+      where c.id = new.client_id;
+    end if;
+  elsif tg_op = 'UPDATE' then
+    if new.status = 'completed'
+       and (
+         old.status is distinct from new.status
+         or old.started_at is distinct from new.started_at
+       ) then
+      update public.clients c
+      set last_session_at = greatest(
+        coalesce(c.last_session_at, '-infinity'::timestamptz),
+        new.started_at
+      )
+      where c.id = new.client_id;
+    end if;
+  end if;
+  return new;
+end;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.sync_payment_to_client_membership()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  -- Solo actualizamos si el pago tiene fechas de período
+  IF (NEW.period_start IS NOT NULL OR NEW.period_end IS NOT NULL) THEN
+    UPDATE public.clients
+    SET 
+      current_plan_id = NEW.plan_id,
+      membership_start = NEW.period_start,
+      membership_end = NEW.period_end,
+      status = 'active', -- Al registrar un pago con fechas, el cliente se activa
+      last_payment_date = NEW.paid_at
+    WHERE id = NEW.client_id;
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'role', 'client')
+  );
+  RETURN NEW;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.register_first_admin(p_user_id uuid, p_email text, p_setup_code text)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+DECLARE
+  v_admin_count integer;
+  v_valid_code boolean;
+BEGIN
+  -- Check if setup code is valid and unused
+  SELECT EXISTS(
+    SELECT 1 FROM public.admin_setup
+    WHERE setup_code = p_setup_code
+    AND is_used = false
+  ) INTO v_valid_code;
+  
+  IF NOT v_valid_code THEN
+    RAISE EXCEPTION 'Invalid or used setup code';
+  END IF;
+  
+  -- Check if there are already admins
+  SELECT COUNT(*) FROM public.profiles WHERE role = 'admin' INTO v_admin_count;
+  
+  IF v_admin_count > 0 THEN
+    RAISE EXCEPTION 'Admin already exists. Only one coach per gym.';
+  END IF;
+  
+  -- Mark code as used
+  UPDATE public.admin_setup
+  SET is_used = true, admin_email = p_email, used_at = now()
+  WHERE setup_code = p_setup_code;
+  
+  -- Update user profile to admin
+  UPDATE public.profiles
+  SET role = 'admin'
+  WHERE id = p_user_id;
+  
+  RETURN true;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.use_invitation_code_atomic(code_text text, user_id_val uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+DECLARE
+  inv_record record;
+BEGIN
+  SELECT id, client_id, created_by, for_role, times_used, max_uses, expires_at
+  INTO inv_record
+  FROM public.invitation_codes
+  WHERE upper(trim(code)) = upper(trim(code_text))
+    AND is_active = true
+    AND times_used < max_uses
+    AND (expires_at IS NULL OR expires_at > now())
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RETURN jsonb_build_object(
+      'success', false,
+      'error', 'Código inválido, expirado o ya usado',
+      'client_id', null,
+      'created_by', null,
+      'for_role', 'client'
+    );
+  END IF;
+
+  UPDATE public.invitation_codes
+  SET
+    times_used = times_used + 1,
+    used_by_user_id = user_id_val
+  WHERE id = inv_record.id;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'error', null,
+    'client_id', inv_record.client_id,
+    'created_by', inv_record.created_by,
+    'for_role', coalesce(inv_record.for_role, 'client')
+  );
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.get_user_stats(p_user_id uuid)
+ RETURNS TABLE(total_workouts bigint, total_sets bigint, total_xp integer, current_level integer, current_streak integer, achievements_unlocked bigint, total_prs bigint)
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    COUNT(DISTINCT el.workout_session_id)::bigint,
+    COUNT(DISTINCT el.id)::bigint,
+    COALESCE(p.xp_points, 0)::integer,
+    COALESCE(p.level, 1)::integer,
+    COALESCE(p.streak_days, 0)::integer,
+    COUNT(DISTINCT ua.achievement_id)::bigint,
+    COUNT(DISTINCT CASE WHEN el.is_pr THEN 1 END)::bigint
+  FROM public.profiles p
+  LEFT JOIN public.exercise_logs el ON p.id = el.user_id
+  LEFT JOIN public.user_achievements ua ON p.id = ua.user_id
+  WHERE p.id = p_user_id
+  GROUP BY p.id, p.xp_points, p.level, p.streak_days;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.check_achievements(p_user_id uuid)
+ RETURNS TABLE(achievement_id uuid, achievement_name text)
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  RETURN QUERY
+  SELECT a.id, a.name
+  FROM public.achievements a
+  WHERE a.id NOT IN (
+    SELECT achievement_id FROM public.user_achievements
+    WHERE user_id = p_user_id
+  )
+  LIMIT 1;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.get_user_client(p_user_id uuid)
+ RETURNS TABLE(client_id text, full_name text, status text, admin_approved boolean, membership_end date, current_plan_id text)
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  RETURN QUERY
+  SELECT c.id, c.full_name, c.status, c.admin_approved, c.membership_end, c.current_plan_id
+  FROM public.clients c
+  WHERE c.user_id = p_user_id;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.has_active_subscription(p_user_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+DECLARE
+  v_client_status text;
+  v_is_approved boolean;
+  v_membership_end date;
+BEGIN
+  SELECT c.status, c.admin_approved, c.membership_end
+  FROM public.clients c
+  WHERE c.user_id = p_user_id
+  INTO v_client_status, v_is_approved, v_membership_end;
+  
+  -- User must be approved and have active status and membership not expired
+  RETURN COALESCE(v_is_approved, false) 
+    AND v_client_status = 'active'
+    AND COALESCE(v_membership_end >= CURRENT_DATE, true);
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.latest_completed_session_by_clients(client_ids text[])
+ RETURNS TABLE(client_id text, started_at timestamp with time zone)
+ LANGUAGE sql
+ STABLE
+ SET search_path TO 'public'
+AS $function$
+  select distinct on (ws.client_id)
+    ws.client_id,
+    ws.started_at
+  from public.workout_sessions ws
+  where ws.client_id = any(client_ids)
+    and ws.status = 'completed'
+  order by ws.client_id, ws.started_at desc;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.client_achievement_session_rollups(p_client_id text, p_tz text)
+ RETURNS jsonb
+ LANGUAGE sql
+ STABLE
+ SET search_path TO 'public'
+AS $function$
+  select jsonb_build_object(
+    'lifetime_volume_kg', coalesce(sum(ws.total_volume_kg), 0)::double precision,
+    'early_workout_count', coalesce(sum(
+      case
+        when ws.started_at is not null
+         and extract(
+           hour from (
+             ws.started_at at time zone coalesce(nullif(trim(p_tz), ''), 'Europe/Madrid')
+           )
+         ) < 8
+        then 1
+        else 0
+      end
+    ), 0)::double precision,
+    'max_session_volume_kg', coalesce(max(ws.total_volume_kg), 0)::double precision
+  )
+  from public.workout_sessions ws
+  where ws.client_id = p_client_id;
+$function$;
+
 -- 4. INDEXES
 CREATE INDEX IF NOT EXISTS idx_gym_settings_admin_id ON public.gym_settings USING btree (admin_id);
 CREATE UNIQUE INDEX IF NOT EXISTS personal_records_user_id_exercise_id_key ON public.personal_records USING btree (client_id, exercise_id);
@@ -1090,7 +1090,7 @@ CREATE POLICY "Only admins can update payments" ON public.payments FOR UPDATE US
 CREATE POLICY "Only admins can delete payments" ON public.payments FOR DELETE USING (EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = (select auth.uid()) AND profiles.role = 'admin'::text));
 
 ALTER TABLE public.progress_photos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin can manage all photos" ON public.progress_photos FOR ALL USING (EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = (select auth.uid()) AND profiles.role = ANY (ARRAY['admin'::text, 'receptionist'::text]))));
+CREATE POLICY "Admin can manage all photos" ON public.progress_photos FOR ALL USING (EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = (select auth.uid()) AND profiles.role = ANY (ARRAY['admin'::text, 'receptionist'::text])));
 CREATE POLICY "Client can manage own photos" ON public.progress_photos FOR ALL USING (client_id IN (SELECT clients.id FROM public.clients WHERE clients.user_id = (select auth.uid())));
 CREATE POLICY "Coaches can view their clients' progress photos" ON public.progress_photos FOR SELECT USING (EXISTS (SELECT 1 FROM public.clients WHERE clients.id = progress_photos.client_id AND clients.coach_id = (select auth.uid())));
 

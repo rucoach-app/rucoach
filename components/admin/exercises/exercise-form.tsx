@@ -65,14 +65,37 @@ export const PRIMARY_MUSCLES = [
   { value: "shoulders", label: "Hombros" },
   { value: "biceps", label: "Bíceps" },
   { value: "triceps", label: "Tríceps" },
-  { value: "abs", label: "Abdomen" },
+  { value: "abs", label: "Abdomen / Core" },
   { value: "glutes", label: "Glúteos" },
   { value: "quadriceps", label: "Cuádriceps" },
   { value: "hamstrings", label: "Isquiotibiales" },
+  { value: "adductors", label: "Aductores" },
   { value: "calves", label: "Pantorrillas" },
   { value: "forearms", label: "Antebrazos" },
+  { value: "trapezius", label: "Trapecios" },
+  { value: "lower_back", label: "Espalda baja / Lumbar" },
+  { value: "obliques", label: "Oblicuos" },
+  { value: "hip_flexors", label: "Flexores de cadera" },
   { value: "full_body", label: "Cuerpo completo" },
   { value: "cardio", label: "Cardio" },
+] as const;
+
+export const QUICK_SECONDARY_MUSCLES = [
+  "Glúteos",
+  "Cuádriceps",
+  "Isquiotibiales",
+  "Aductores",
+  "Abdomen / Core",
+  "Lumbar / Espalda baja",
+  "Pantorrillas",
+  "Hombros",
+  "Tríceps",
+  "Bíceps",
+  "Espalda alta / Dorsales",
+  "Trapecios",
+  "Antebrazos",
+  "Flexores de cadera",
+  "Oblicuos",
 ] as const;
 
 export const EXERCISE_TYPES = [
@@ -106,12 +129,28 @@ function normalizeInitialMuscle(raw?: string | null): string {
   if (valid) return key;
   const aliasMap: Record<string, string> = {
     pectorals: "chest",
+    pecho: "chest",
     lats: "back",
-    traps: "back",
-    spine: "back",
+    espalda: "back",
+    traps: "trapezius",
+    trapecios: "trapezius",
+    spine: "lower_back",
+    lumbar: "lower_back",
     delts: "shoulders",
+    hombros: "shoulders",
     quads: "quadriceps",
+    cuádriceps: "quadriceps",
+    cuadriceps: "quadriceps",
+    glúteos: "glutes",
+    gluteos: "glutes",
+    femorales: "hamstrings",
+    isquios: "hamstrings",
+    isquiotibiales: "hamstrings",
+    aductores: "adductors",
+    adductor: "adductors",
     waist: "abs",
+    core: "abs",
+    abdomen: "abs",
   };
   return aliasMap[key] ?? "chest";
 }
@@ -164,12 +203,57 @@ export function ExerciseForm({
       ? Boolean(initialExercise.uses_external_load)
       : true,
   );
-  const [secondaryMuscle, setSecondaryMuscle] = useState<string>(() => {
-    if (initialExercise?.secondary_muscles_es?.length) {
-      return initialExercise.secondary_muscles_es.join(", ");
-    }
-    return initialExercise?.secondary_muscle ?? "";
-  });
+  const [secondaryMusclesList, setSecondaryMusclesList] = useState<string[]>(
+    () => {
+      if (initialExercise?.secondary_muscles_es?.length) {
+        return initialExercise.secondary_muscles_es
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      if (initialExercise?.secondary_muscle) {
+        return initialExercise.secondary_muscle
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      return [];
+    },
+  );
+  const [customSecondaryMuscle, setCustomSecondaryMuscle] = useState("");
+
+  const toggleSecondaryMuscle = (muscleName: string) => {
+    setSecondaryMusclesList((prev) => {
+      const exists = prev.some(
+        (m) => m.toLowerCase() === muscleName.toLowerCase(),
+      );
+      if (exists) {
+        return prev.filter(
+          (m) => m.toLowerCase() !== muscleName.toLowerCase(),
+        );
+      }
+      return [...prev, muscleName];
+    });
+  };
+
+  const handleAddCustomSecondaryMuscle = () => {
+    const trimmed = customSecondaryMuscle.trim();
+    if (!trimmed) return;
+    setSecondaryMusclesList((prev) => {
+      const exists = prev.some(
+        (m) => m.toLowerCase() === trimmed.toLowerCase(),
+      );
+      if (exists) return prev;
+      return [...prev, trimmed];
+    });
+    setCustomSecondaryMuscle("");
+  };
+
+  const removeSecondaryMuscle = (muscleName: string) => {
+    setSecondaryMusclesList((prev) =>
+      prev.filter((m) => m.toLowerCase() !== muscleName.toLowerCase()),
+    );
+  };
+
   const [equipment, setEquipment] = useState<string>(() =>
     initialExercise ? (exEquipment(initialExercise) ?? "") : "",
   );
@@ -387,7 +471,7 @@ export function ExerciseForm({
       fd.set("primaryMuscle", primaryMuscle);
       fd.set("exerciseType", exerciseType);
       fd.set("usesExternalLoad", String(usesExternalLoad));
-      fd.set("secondaryMuscle", secondaryMuscle.trim());
+      fd.set("secondaryMuscle", secondaryMusclesList.join(", "));
       fd.set("equipment", equipment.trim());
       fd.set("instructionsEs", JSON.stringify(cleanSteps));
       fd.set("techniqueNotes", techniqueNotes.trim());
@@ -396,10 +480,18 @@ export function ExerciseForm({
       fd.set("demoVideoUrl", demoVideoUrl.trim());
 
       if (isEdit && initialExercise) {
-        await updateAdminExercise(initialExercise.id, fd);
+        const res = await updateAdminExercise(initialExercise.id, fd);
+        if (!res.success) {
+          toast.error(res.error || "No se pudo actualizar el ejercicio");
+          return;
+        }
         toast.success("Ejercicio actualizado correctamente");
       } else {
-        await createAdminExercise(fd);
+        const res = await createAdminExercise(fd);
+        if (!res.success) {
+          toast.error(res.error || "No se pudo crear el ejercicio");
+          return;
+        }
         toast.success("Ejercicio creado en el catálogo");
       }
 
@@ -498,61 +590,146 @@ export function ExerciseForm({
           </Field>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field>
-            <FieldLabel htmlFor="ex-sec">
-              Músculos secundarios (opcional)
-            </FieldLabel>
-            <FieldDescription>Separados por coma.</FieldDescription>
-            <FieldContent>
-              <Input
-                id="ex-sec"
-                name="secondaryMuscle"
-                value={secondaryMuscle}
-                onChange={(e) => setSecondaryMuscle(e.target.value)}
-                className="h-11 rounded-xl"
-                placeholder="Ej. Tríceps, Deltoides anterior"
-              />
-            </FieldContent>
-          </Field>
+        {/* EQUIPAMIENTO */}
+        <Field>
+          <FieldLabel htmlFor="ex-eq">Equipamiento (opcional)</FieldLabel>
+          <FieldDescription>
+            Selecciona rápido o escribe otro equipo.
+          </FieldDescription>
+          <FieldContent className="space-y-2.5">
+            <Input
+              id="ex-eq"
+              name="equipment"
+              value={equipment}
+              onChange={(e) => setEquipment(e.target.value)}
+              className="h-11 rounded-xl"
+              placeholder="Ej. Mancuernas, Polea, Barra…"
+            />
+            <div className="flex flex-wrap gap-1.5">
+              {QUICK_EQUIPMENT_OPTIONS.map((item) => {
+                const active =
+                  equipment.trim().toLowerCase() === item.toLowerCase();
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setEquipment(active ? "" : item)}
+                    className={cn(
+                      "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all active:scale-95 cursor-pointer",
+                      active
+                        ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                        : "border-border/60 bg-muted/40 text-muted-foreground hover:bg-secondary hover:text-foreground",
+                    )}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
+            </div>
+          </FieldContent>
+        </Field>
 
-          <Field>
-            <FieldLabel htmlFor="ex-eq">Equipamiento (opcional)</FieldLabel>
-            <FieldDescription>
-              Selecciona rápido o escribe otro equipo.
-            </FieldDescription>
-            <FieldContent className="space-y-2.5">
-              <Input
-                id="ex-eq"
-                name="equipment"
-                value={equipment}
-                onChange={(e) => setEquipment(e.target.value)}
-                className="h-11 rounded-xl"
-                placeholder="Ej. Mancuernas, Polea…"
-              />
-              <div className="flex flex-wrap gap-1.5">
-                {QUICK_EQUIPMENT_OPTIONS.map((item) => {
-                  const active =
-                    equipment.trim().toLowerCase() === item.toLowerCase();
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setEquipment(active ? "" : item)}
-                      className={cn(
-                        "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all active:scale-95",
-                        active
-                          ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                          : "border-border/60 bg-muted/40 text-muted-foreground hover:bg-secondary hover:text-foreground",
-                      )}
-                    >
-                      {item}
-                    </button>
-                  );
-                })}
-              </div>
-            </FieldContent>
-          </Field>
+        {/* MÚSCULOS SECUNDARIOS / SINERGISTAS (INTERACTIVO MULTI-SELECCIÓN) */}
+        <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 space-y-3.5 shadow-2xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                Músculos secundarios / sinergistas involucrados
+                {secondaryMusclesList.length > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="border-primary/40 bg-primary/10 text-primary font-bold text-[11px] px-2 py-0.5 rounded-full"
+                  >
+                    {secondaryMusclesList.length} añadido{secondaryMusclesList.length > 1 ? "s" : ""}
+                  </Badge>
+                )}
+              </label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Toca los músculos que también se activan en este ejercicio (ej. en Sentadilla Sumo: Glúteos + Cuádriceps + Aductores). Se iluminarán en el mapa anatómico y contarán para el volumen del atleta.
+              </p>
+            </div>
+          </div>
+
+          {/* Chips interactivos con 1 toque */}
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {QUICK_SECONDARY_MUSCLES.map((muscle) => {
+              const active = secondaryMusclesList.some(
+                (m) => m.toLowerCase() === muscle.toLowerCase(),
+              );
+              return (
+                <button
+                  key={muscle}
+                  type="button"
+                  onClick={() => toggleSecondaryMuscle(muscle)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all active:scale-95 cursor-pointer",
+                    active
+                      ? "border-primary bg-primary/15 text-primary font-semibold shadow-xs"
+                      : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  )}
+                >
+                  {active ? (
+                    <Check className="size-3.5 stroke-[2.5]" />
+                  ) : (
+                    <Plus className="size-3.5 text-muted-foreground/60" />
+                  )}
+                  {muscle}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Input para agregar otro músculo personalizado */}
+          <div className="flex items-center gap-2 pt-1">
+            <Input
+              id="ex-custom-muscle"
+              value={customSecondaryMuscle}
+              onChange={(e) => setCustomSecondaryMuscle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddCustomSecondaryMuscle();
+                }
+              }}
+              placeholder="¿Falta algún músculo? Escríbelo aquí (ej. Aductor mayor, Sóleo)…"
+              className="h-10 text-xs rounded-xl"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAddCustomSecondaryMuscle}
+              disabled={!customSecondaryMuscle.trim()}
+              className="h-10 rounded-xl px-3 text-xs shrink-0 cursor-pointer"
+            >
+              <Plus className="size-3.5 mr-1" /> Añadir
+            </Button>
+          </div>
+
+          {/* Resumen de músculos secundarios activos */}
+          {secondaryMusclesList.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs">
+              <span className="font-semibold text-foreground text-[11px] mr-1">
+                Activará en el mapa del asesorado:
+              </span>
+              {secondaryMusclesList.map((m) => (
+                <span
+                  key={m}
+                  className="inline-flex items-center gap-1 rounded-full bg-background border border-border/70 px-2.5 py-0.5 text-[11px] font-medium text-foreground shadow-2xs"
+                >
+                  {m}
+                  <button
+                    type="button"
+                    onClick={() => removeSecondaryMuscle(m)}
+                    className="rounded-full hover:bg-muted p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                    title={`Quitar ${m}`}
+                  >
+                    <X className="size-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/20 p-4">

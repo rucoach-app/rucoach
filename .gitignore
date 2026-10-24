@@ -31,8 +31,10 @@ public/sw.js.map
 public/workbox-*.js
 public/fallback-*.js
 
-# Supabase CLI
+# Supabase CLI & Backups
 .supabase/
+supabase/backups/
+scripts/*backup*.json
 
 # IDEs
 .cursor/

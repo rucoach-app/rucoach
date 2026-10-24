@@ -592,7 +592,7 @@ export async function getExercisesForSelector() {
     const { data, error } = await supabase
       .from("exercises")
       .select(
-        "id, name, name_es, gif_url, body_parts, body_parts_es, target_muscles, target_muscles_es, equipments, primary_muscle, exercise_type, equipment, equipment_es, instructions_es, technique_notes",
+        "id, name, name_es, gif_url, body_parts, body_parts_es, target_muscles, target_muscles_es, equipments, primary_muscle, secondary_muscle, secondary_muscles, secondary_muscles_es, exercise_type, equipment, equipment_es, instructions_es, technique_notes",
       )
       .order("name")
       .range(from, to);

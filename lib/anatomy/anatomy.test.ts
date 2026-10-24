@@ -14,10 +14,30 @@ describe('Anatomy, Recovery & Pain Map Engine', () => {
   it('maps muscle aliases correctly to canonical slugs', () => {
     expect(canonicalMuscle('pecho')).toBe('chest')
     expect(canonicalMuscle('cuadriceps')).toBe('quadriceps')
+    expect(canonicalMuscle('cuádriceps')).toBe('quadriceps')
+    expect(canonicalMuscle('isquiotibiales')).toBe('hamstring')
+    expect(canonicalMuscle('aductores')).toBe('adductors')
+    expect(canonicalMuscle('glúteos')).toBe('gluteal')
     expect(canonicalMuscle('isquios')).toBe('hamstring')
     expect(canonicalMuscle('lats')).toBe('upper-back')
     expect(canonicalMuscle('core')).toBe('abs')
     expect(canonicalMuscle('unknown_thing')).toBeNull()
+  })
+
+  it('binds loads for newly created custom exercises with Spanish secondary muscles', () => {
+    const customExercise: Partial<Exercise> = {
+      id: 'custom-sumo-belt-squat',
+      name: 'Sentadilla Zumo en Belt Squat Machin',
+      primary_muscle: 'glutes',
+      secondary_muscles_es: ['cuádriceps', 'aductores', 'isquiotibiales'],
+      target_muscles_es: ['glúteos'],
+    }
+
+    const load = calculateMuscleLoad([{ exercise: customExercise, sets: 5 }])
+    expect(load.gluteal).toBe(5) // Primary: 5 * 1.0 = 5
+    expect(load.quadriceps).toBe(2) // Secondary: 5 * 0.4 = 2
+    expect(load.adductors).toBe(2) // Secondary: 5 * 0.4 = 2
+    expect(load.hamstring).toBe(2) // Secondary: 5 * 0.4 = 2
   })
 
   it('calculates muscle load from exercises with sets', () => {

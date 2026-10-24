@@ -65,25 +65,40 @@ const ALIASES: Record<string, MuscleSlug | null> = {
   abdominals: 'abs',
   core: 'abs',
   abdomen: 'abs',
+  abdominales: 'abs',
   'lower abs': 'abs',
+  obliques: 'obliques',
+  oblicuos: 'obliques',
+  oblicuo: 'obliques',
   pectorals: 'chest',
   pectoral: 'chest',
   pecho: 'chest',
+  pectorales: 'chest',
   chest: 'chest',
   'upper chest': 'chest',
   biceps: 'biceps',
   bicep: 'biceps',
+  brazos: 'biceps',
+  brazo: 'biceps',
   brachialis: 'biceps',
   glutes: 'gluteal',
   glute: 'gluteal',
   gluteal: 'gluteal',
   gluteus: 'gluteal',
+  gluteos: 'gluteal',
+  gluteo: 'gluteal',
   abductors: 'gluteal',
+  abductores: 'gluteal',
+  abductor: 'gluteal',
   delts: 'deltoids',
   deltoids: 'deltoids',
   deltoid: 'deltoids',
+  deltoides: 'deltoids',
+  deltoide: 'deltoids',
   shoulders: 'deltoids',
   shoulder: 'deltoids',
+  hombros: 'deltoids',
+  hombro: 'deltoids',
   'rear deltoids': 'deltoids',
   'rotator cuff': 'deltoids',
   triceps: 'triceps',
@@ -95,28 +110,43 @@ const ALIASES: Record<string, MuscleSlug | null> = {
   'latissimus dorsi': 'upper-back',
   rhomboids: 'upper-back',
   espalda: 'upper-back',
+  dorsales: 'upper-back',
+  dorsal: 'upper-back',
+  'espalda alta': 'upper-back',
   calves: 'calves',
   calf: 'calves',
   soleus: 'calves',
   pantorrillas: 'calves',
+  pantorrilla: 'calves',
   gemelos: 'calves',
+  gemelo: 'calves',
   quads: 'quadriceps',
   quadriceps: 'quadriceps',
   cuadriceps: 'quadriceps',
+  muslo: 'quadriceps',
+  muslos: 'quadriceps',
   forearms: 'forearm',
   forearm: 'forearm',
   antebrazos: 'forearm',
+  antebrazo: 'forearm',
   wrists: 'forearm',
   hamstrings: 'hamstring',
   hamstring: 'hamstring',
   isquios: 'hamstring',
+  isquiotibiales: 'hamstring',
+  isquiotibial: 'hamstring',
   femorales: 'hamstring',
+  femoral: 'hamstring',
   spine: 'lower-back',
   'lower back': 'lower-back',
   'lower-back': 'lower-back',
   lumbar: 'lower-back',
+  lumbares: 'lower-back',
+  'espalda baja': 'lower-back',
   traps: 'trapezius',
   trapezius: 'trapezius',
+  trapecios: 'trapezius',
+  trapecio: 'trapezius',
   'levator scapulae': 'trapezius',
   adductors: 'adductors',
   adductor: 'adductors',
@@ -126,10 +156,16 @@ const ALIASES: Record<string, MuscleSlug | null> = {
   groin: 'adductors',
   serratus: 'serratus',
   'serratus anterior': 'serratus',
+  serratos: 'serratus',
+  serrato: 'serratus',
   'hip flexors': 'hip-flexors',
   'hip-flexors': 'hip-flexors',
+  'flexores de cadera': 'hip-flexors',
+  flexores: 'hip-flexors',
   shins: 'tibialis',
   tibialis: 'tibialis',
+  tibial: 'tibialis',
+  tibiales: 'tibialis',
 
   // Inert/undrawables
   hands: null,
@@ -144,7 +180,14 @@ export function canonicalMuscle(name?: string | null): MuscleSlug | null {
   if (!name) return null
   const cleaned = name.toLowerCase().trim()
   if (MUSCLES.includes(cleaned as MuscleSlug)) return cleaned as MuscleSlug
-  return ALIASES[cleaned] ?? null
+  if (ALIASES[cleaned] !== undefined) return ALIASES[cleaned]
+
+  // Normalizar acentos y diacríticos (ej. cuádriceps -> cuadriceps, bíceps -> biceps)
+  const normalized = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  if (MUSCLES.includes(normalized as MuscleSlug)) return normalized as MuscleSlug
+  if (ALIASES[normalized] !== undefined) return ALIASES[normalized]
+
+  return null
 }
 
 const BY_BODYPART: Record<string, Partial<Record<MuscleSlug, number>>> = {
@@ -173,6 +216,9 @@ export interface ExerciseAnatomyInput {
   name_es?: string | null
   primary_muscle?: string | null
   secondary_muscles?: string[] | null
+  secondary_muscles_es?: string[] | null
+  target_muscles_es?: string[] | null
+  secondary_muscle?: string | null
   muscle_weights?: Record<string, number> | null
   body_part?: string | null
   body_parts?: string[] | null
@@ -203,10 +249,21 @@ export function getExerciseMuscleWeights(
     result[primarySlug] = 1.0
   }
 
-  // 3. Secondary muscles
-  const secondaries = Array.isArray(ex.secondary_muscles)
-    ? ex.secondary_muscles
-    : []
+  // 3. Secondary muscles from all possible columns (array EN, array ES, string comma-separated)
+  const secondaries: string[] = []
+  if (Array.isArray(ex.secondary_muscles)) {
+    secondaries.push(...ex.secondary_muscles)
+  }
+  if (Array.isArray(ex.secondary_muscles_es)) {
+    secondaries.push(...ex.secondary_muscles_es)
+  }
+  if (Array.isArray(ex.target_muscles_es)) {
+    secondaries.push(...ex.target_muscles_es)
+  }
+  if (typeof ex.secondary_muscle === 'string') {
+    secondaries.push(...ex.secondary_muscle.split(','))
+  }
+
   for (const s of secondaries) {
     const slug = canonicalMuscle(s)
     if (slug && !result[slug]) {

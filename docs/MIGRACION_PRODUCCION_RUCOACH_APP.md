@@ -12,13 +12,13 @@ flowchart TD
         A["Supabase Producción (zhsreeimxiggjidgmvpo)\n- 22 tablas, triggers, RLS, storage, realtime\n- 1,330 ejercicios bilingües\n- 43 logros, rutinas y métricas"]
         B["GitHub Organización (@rucoach-app)\n- Repositorio transferido: rucoach-app/rucoach\n- CI/CD sincronizado"]
         C["Vercel CLI Envs\n- NEXT_PUBLIC_SUPABASE_URL\n- NEXT_PUBLIC_SUPABASE_ANON_KEY\n- SUPABASE_SERVICE_ROLE_KEY\n(Production, Preview, Development)"]
-        D["Script Plantillas Email\n- scripts/update-supabase-email-templates.ts listo"]
+        D["Resend SMTP & Plantillas HTML\n- smtp.resend.com activo en Supabase\n- 6 plantillas personalizadas inyectadas"]
     end
 
     subgraph PENDIENTE["⏳ En Espera del Dominio rucoach.app"]
         E["Name.com\nObtener dominio con GitHub Pack"] --> F["Cloudflare DNS\nDelegar Nameservers"]
-        F --> G["Resend\nVerificar dominio (DKIM, SPF)"]
-        G --> H["Supabase Auth SMTP\nActivar Custom SMTP y correr script de plantillas"]
+        F --> G["Resend\nVerificar rucoach.app (DKIM, SPF)"]
+        G --> H["Actualizar Remitente\nCambiar noreply@herwingx.com a noreply@rucoach.app"]
         F --> I["Vercel Domains\nAsignar rucoach.app"]
         I --> J["Variables Finales en Vercel\nNEXT_PUBLIC_APP_URL y EMAIL_FROM"]
     end
@@ -29,10 +29,10 @@ flowchart TD
 | **Organización de GitHub** | ✅ Completado | Repositorio oficial en [`github.com/rucoach-app/rucoach`](https://github.com/rucoach-app/rucoach). |
 | **Base de Datos Supabase** | ✅ Completado | Proyecto `zhsreeimxiggjidgmvpo` con schema DDL y los 1,330 ejercicios y datos restaurados. |
 | **Variables Supabase en Vercel** | ✅ Completado | Actualizadas en Production, Preview y Development con Vercel CLI. |
-| **Plantillas de Correo HTML** | ⏳ Lista para inyectar | 6 plantillas en `emails/supabase/` listas para inyectar vía script tras activar SMTP. |
+| **Resend SMTP en Supabase** | ✅ Operativo | Configurado con `smtp.resend.com` y verificado con `noreply@herwingx.com`. |
+| **Plantillas de Correo HTML** | ✅ 100% Inyectadas | Las 6 plantillas de Supabase Auth (confirmación, reseteo, OTP 8 dígitos) ya están activas. |
 | **Dominio `rucoach.app`** | ⏳ Pendiente | Por adquirir en Name.com con GitHub Student Developer Pack. |
 | **Cloudflare DNS** | ⏳ Pendiente | En espera de configurar Nameservers y registros A/CNAME/DKIM/SPF. |
-| **Resend (Dominio Oficial)** | ⏳ Pendiente | En espera de verificar `rucoach.app` en Cloudflare. |
 
 ---
 

@@ -61,11 +61,17 @@ flowchart TD
 
 ---
 
-### Paso 3: Configurar Resend y Verificar Dominio
-1. Entra a [resend.com/domains](https://resend.com/domains) → **Add Domain** → `rucoach.app` → Región: **us-east-1**.
-2. Agrega los registros DNS generados por Resend (DKIM, SPF, MX) en **Cloudflare DNS** (también en **DNS Only / Gris**).
-3. Presiona **Verify DNS Records** en Resend hasta que marque verde (**Verified**).
-4. En **Resend API Keys** → Copia tu clave API de producción (`re_...`).
+### Paso 3: Configurar Resend y Verificar Dominio en Cloudflare
+El dominio `rucoach.app` ya fue creado en la nueva cuenta de Resend (`id: b9bee973-d326-4805-ad99-fb1c580bdf8b`). En **Cloudflare DNS**, solo debes agregar estos 4 registros en **Nube Gris (DNS Only)**:
+
+| Tipo | Nombre | Valor / Destino | Prioridad | Proxy |
+| :--- | :--- | :--- | :---: | :--- |
+| **`TXT`** | `resend._domainkey` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUu4ewf/HpT3PiyZLWdf8SUXVlmuxHqvSnFBOoDkvBm6A81JKqWTDqSnj3tWmr9CmyyznUt55DDtMAYk2ZecdHmc8TAyW5Za0dQCB7DwthjMx7qq565YsR7QyWazzHQaDL7vaYwizNmVKW++rNNIYLSaXPSDMXDMAtnIUs4NWogwIDAQAB` | - | **DNS Only (Gris)** |
+| **`CNAME`** | `send` | `send.forge.rmta.net` | - | **DNS Only (Gris)** |
+| **`CNAME`** | `rsend` | `rsend.forge.rmta.net` | - | **DNS Only (Gris)** |
+| **`MX`** | `@` | `receive.forge.rmta.net` | `10` | **DNS Only (Gris)** |
+
+Una vez guardados en Cloudflare, haz clic en **Verify DNS Records** en el panel de Resend hasta que marque verde.
 
 ---
 

@@ -162,31 +162,31 @@ export function NextWorkoutCard({
         </CardHeader>
 
         <CardContent className="px-5 sm:px-8 pb-7 flex flex-col gap-6">
-          {/* Quick stats grid with 100% circular icons */}
-          <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
-            <div className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30">
-              <div className="size-12 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
-                <Dumbbell className="size-5.5 text-primary" strokeWidth={2.2} />
+          {/* Quick stats grid with balanced circular icons */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 p-3 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30">
+              <div className="size-9 sm:size-11 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                <Dumbbell className="size-4.5 sm:size-5 text-primary" strokeWidth={2.2} />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-2xl sm:text-3xl font-black tabular-nums leading-none tracking-tight text-foreground">
+                <span className="text-xl sm:text-2xl font-black tabular-nums leading-none tracking-tight text-foreground">
                   {exerciseCount}
                 </span>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mt-1 truncate">
+                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-1 whitespace-nowrap">
                   Ejercicios
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30">
-              <div className="size-12 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
-                <Clock className="size-5.5 text-primary" strokeWidth={2.2} />
+            <div className="flex items-center gap-2.5 sm:gap-3.5 p-3 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30">
+              <div className="size-9 sm:size-11 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                <Clock className="size-4.5 sm:size-5 text-primary" strokeWidth={2.2} />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-2xl sm:text-3xl font-black tabular-nums leading-none tracking-tight text-foreground">
+                <span className="text-xl sm:text-2xl font-black tabular-nums leading-none tracking-tight text-foreground">
                   {estimatedTime}
                 </span>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mt-1 truncate">
+                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-1 whitespace-nowrap">
                   Min aprox.
                 </span>
               </div>

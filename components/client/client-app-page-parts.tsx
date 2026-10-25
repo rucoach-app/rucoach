@@ -94,7 +94,7 @@ export function ClientStackPageHeader({
             </h1>
             {subtitle ? (
               typeof subtitle === 'string' ? (
-                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground/90 sm:text-sm font-medium sm:mt-1.5">
+                <p className="mt-1 line-clamp-2 sm:line-clamp-1 text-xs text-muted-foreground/90 sm:text-sm font-medium sm:mt-1.5">
                   {subtitle}
                 </p>
               ) : (

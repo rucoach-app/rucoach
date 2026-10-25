@@ -84,3 +84,4 @@ flowchart LR
 2. Ingresa el código maestro: **`GYMCOACH`**.
 3. Registra el correo del coach (Rodrigo) y completa el onboarding de 2 pasos.
 4. **¡Listo! La plataforma queda entregada «llave en mano» y operando en producción.**
+

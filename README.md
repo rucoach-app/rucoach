@@ -13,14 +13,14 @@
   [![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_&_DNS-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://www.cloudflare.com/)
   [![PWA Installable](https://img.shields.io/badge/PWA-iOS_%7C_Android_%7C_Desktop-F59E0B?style=for-the-badge)](https://rucoach.app)
 
-  [**Sitio en Producción (`rucoach.app`)**](https://rucoach.app) · [**Documentación Técnica (`docs/`)**](./docs/INDEX.md) · [**Motor Anatómico**](./docs/ANATOMIA_Y_FUSION_OPEN_GYM.md) · [**Guía de Base de Datos**](./docs/DATABASE_GUIDE.md) · [**Guía de Migración y Dominio**](./docs/MIGRACION_PRODUCCION_RUCOACH_APP.md)
+  [**Sitio en Producción (`rucoach.app`)**](https://rucoach.app) · [**Portal de Documentación (`docs/`)**](./docs/INDEX.md) · [**Arquitectura**](./docs/ARCHITECTURE.md) · [**Base de Datos (22 Tablas)**](./docs/DATABASE_GUIDE.md) · [**Infraestructura Cloud**](./docs/INFRASTRUCTURE.md) · [**Motor Biomecánico**](./docs/ANATOMY_AND_BIOMECHANICS.md)
 </div>
 
 ---
 
 ## Vista General
 
-**RU Coach** es una plataforma integral diseñada para centralizar todo el flujo de trabajo entre **Entrenador (Coach)**, **Asesorado (Atleta)** y **Recepción**. Combina prescripción estructurada de rutinas (con biseries, superseries y catálogo bilingüe de **1,324 ejercicios**), registro de sesiones en vivo con temporizadores hápticos/sonoros, **motor de sobrecarga progresiva automática con barrera clínica de dolor**, biometría antropométrica, comparador visual de progreso físico (*Antes / Después*), chat en tiempo real y notificaciones Web Push nativas.
+**RU Coach** es una plataforma de software integral de alto rendimiento diseñada para centralizar y elevar la relación entre **Entrenador (Coach)**, **Atleta (Asesorado)** y **Recepción**. Combina prescripción estructurada de rutinas continuas (con biseries, superseries y catálogo bilingüe de **1,330 ejercicios**), registro de sesiones en vivo con temporizadores hápticos/sonoros, **motor de sobrecarga progresiva automática con barrera clínica de dolor**, biometría antropométrica, comparador visual de progreso físico (*Antes / Después*), chat en tiempo real y notificaciones Web Push nativas.
 
 <div align="center">
   <table>
@@ -56,9 +56,9 @@ flowchart LR
   end
 
   subgraph Cloud["Infraestructura Cloud"]
-    SB[("Supabase PostgreSQL 17\n17 Tablas + RLS + Triggers")]
+    SB[("Supabase PostgreSQL 17\n22 Tablas + RLS + Triggers")]
     RT["Supabase Realtime\nChat en Vivo"]
-    R2[("Cloudflare R2\n1,324 GIFs + Fotos + Avatares")]
+    R2[("Cloudflare R2\n1,330 GIFs + Fotos + Avatares")]
     Resend["Resend SMTP & API\nEmails Transaccionales"]
   end
 
@@ -70,6 +70,20 @@ flowchart LR
   UI <--> RT
   SW <--> Actions
 ```
+
+---
+
+## Índice de Documentación Especializada
+
+Para detalles exhaustivos de ingeniería y operación, consulta los documentos de la carpeta [`docs/`](./docs/INDEX.md):
+
+* 📐 **[Arquitectura de Software (`docs/ARCHITECTURE.md`)](./docs/ARCHITECTURE.md)**: Topología de Server Components vs Client Components, estructura de directorios, edge routing (`proxy.ts`) y seguridad.
+* 🗄️ **[Base de Datos Relacional (`docs/DATABASE_GUIDE.md`)](./docs/DATABASE_GUIDE.md)**: Diccionario de datos de las 22 tablas, diagramas entidad-relación, funciones almacenadas, triggers y políticas RLS optimizadas con `InitPlan`.
+* ☁️ **[Infraestructura y Servicios Cloud (`docs/INFRASTRUCTURE.md`)](./docs/INFRASTRUCTURE.md)**: Configuración de Vercel, Supabase, Cloudflare DNS/R2, Resend, matriz de variables de entorno y CI/CD.
+* 🧬 **[Biomecánica y Motor Anatómico (`docs/ANATOMY_AND_BIOMECHANICS.md`)](./docs/ANATOMY_AND_BIOMECHANICS.md)**: Los 18 grupos musculares canónicos, BodyMap SVG 2D, cálculo de fatiga neuromuscular, estimación de recuperación y fórmulas de 1RM.
+* 🏋️ **[Rutinas y Progresión de Cargas (`docs/ROUTINES_AND_WORKOUTS.md`)](./docs/ROUTINES_AND_WORKOUTS.md)**: Constructor de rutinas, biseries/superseries, sustituciones de ejercicios, cronómetro minimizable y motor de sobrecarga con barrera clínica de dolor.
+* 👥 **[Ecosistema de Roles y Flujos (`docs/ROLES_AND_WORKFLOWS.md`)](./docs/ROLES_AND_WORKFLOWS.md)**: Manual de los portales de Coach (`/admin`), Atleta (`/client`) y Recepción (`/receptionist`), ciclo de cobros y mensajería en tiempo real.
+* 📱 **[PWA y Estrategia Offline (`docs/PWA_AND_OFFLINE.md`)](./docs/PWA_AND_OFFLINE.md)**: Service Worker con Serwist, políticas de caché, notificaciones Web Push nativas (VAPID) y adaptación móvil con `VisualViewport`.
 
 ---
 
@@ -93,7 +107,7 @@ flowchart LR
   - Reordenamiento *Drag & Drop* (`@dnd-kit`), agrupación visual de **Biseries y Superseries (Grupos A–E)**, vista previa técnica integrada (`ExerciseDetailDrawer`), prescripción de series, repeticiones, descanso y **notas por ejercicio (`notes`)**.
   - **Edición No Destructiva (`updateRoutineFromBuilder`)** que preserva el ciclo de días y las sustituciones de ejercicios del atleta, **clonación en 1 clic (`cloneRoutine`)** y **asignación rápida (`AssignRoutineModal`)** con notificación vía **Resend** y **Web Push**.
 - **Catálogo Bilingüe y Editor Paso a Paso de Ejercicios (`/admin/exercises`)**:
-  - **1,324+ ejercicios** con esquema bilingüe (`_es` prioritario), GIFs demostrativos servidos desde Cloudflare R2, clasificación por modalidad (`strength`, `bodyweight`, `timed`, `cardio`, `mobility`) y bandera `uses_external_load`.
+  - **1,330+ ejercicios** con esquema bilingüe (`_es` prioritario), GIFs demostrativos servidos desde Cloudflare R2, clasificación por modalidad (`strength`, `bodyweight`, `timed`, `cardio`, `mobility`) y bandera `uses_external_load`.
   - **Filtro Anatómico Interactivo (`BodyMap` + `MuscleExplorerPanel`)**: Selección visual directa en mapa corporal SVG o chips musculares, sincronizado con la URL (`?muscle=...`).
   - **Creación y Edición por Puntos (`ExerciseFormModal`)**: Permite editar o crear ejercicios con una lista interactiva de pasos numerados (insertar, reordenar, pegar bloques de texto) y subida directa de GIF/imagen a Cloudflare R2.
 - **Pagos Inteligentes, Descuentos y Vigencias (`/admin/payments` y `/admin/settings`)**:

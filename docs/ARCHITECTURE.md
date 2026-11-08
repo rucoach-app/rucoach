@@ -51,7 +51,7 @@ gym-coaching/
 │   │   ├── dashboard/                  # Vista ejecutiva de asesorados, alertas, KPIs y gráfica semanal
 │   │   ├── clients/                    # Directorio, creación, asignaciones y Hub 360° con analítica biomecánica
 │   │   ├── routines/                   # Catálogo de rutinas, clonación, asignación rápida y Constructor Visual con cobertura muscular
-│   │   ├── exercises/                  # Catálogo bilingüe de 1,324+ ejercicios con filtro interactivo por mapa corporal
+│   │   ├── exercises/                  # Catálogo bilingüe de 1,330+ ejercicios con filtro interactivo por mapa corporal
 │   │   ├── payments/                   # Gestión de cobros, vigencia efectiva, cobro libre y renovación en 1 clic
 │   │   ├── invitations/                # Generación y administración de códigos de invitación
 │   │   ├── messages/                   # Inbox de chat en tiempo real con todos los asesorados
@@ -103,7 +103,7 @@ gym-coaching/
 │   │   ├── dashboard/                  # Vista ejecutiva de asesorados, alertas, KPIs y gráfica semanal
 │   │   ├── clients/                    # Directorio, creación, asignaciones y Hub 360° (/admin/clients/[clientId])
 │   │   ├── routines/                   # Catálogo de rutinas, clonación, asignación rápida y Constructor Visual (/admin/routines/builder)
-│   │   ├── exercises/                  # Catálogo bilingüe de 1,324+ ejercicios, creación y edición paso a paso con GIF en R2
+│   │   ├── exercises/                  # Catálogo bilingüe de 1,330+ ejercicios, creación y edición paso a paso con GIF en R2
 │   │   ├── payments/                   # Gestión de cobros, estados efectivos por vigencia, descuentos y renovación en 1 clic
 │   │   ├── invitations/                # Generación y administración de códigos de invitación
 │   │   ├── messages/                   # Inbox de chat en tiempo real con todos los asesorados
@@ -158,7 +158,7 @@ Definido íntegramente en [`supabase/supabase_schema_dump.sql`](../supabase/supa
 - **`admin_setup`**: Registro de auditoría de activación del administrador inicial.
 
 ### 2. Rutinas, Ejercicios y Personalización Dinámica
-- **`exercises`**: Catálogo de 1,324 ejercicios con columnas bilingües (`name` / `name_es`, `body_parts` / `body_parts_es`, `target_muscles` / `target_muscles_es`, `secondary_muscles` / `secondary_muscles_es`, `equipments` / `equipments_es`, `instructions` / `instructions_es`, `gif_url`, `exercise_type`, `uses_external_load`).
+- **`exercises`**: Catálogo de 1,330+ ejercicios con columnas bilingües (`name` / `name_es`, `body_parts` / `body_parts_es`, `target_muscles` / `target_muscles_es`, `secondary_muscles` / `secondary_muscles_es`, `equipments` / `equipments_es`, `instructions` / `instructions_es`, `gif_url`, `exercise_type`, `uses_external_load`).
 - **`routines`**: Programas de entrenamiento (`coach_id`, `name`, `description`, `duration_weeks`, `days_per_week`, `goal`, `level`, `is_template`, `is_active`).
 - **`routine_days`**: Días dentro de una rutina (`routine_id`, `day_number`, `name`, `description`, `is_rest_day`).
 - **`routine_exercises`**: Ejercicios prescritos en cada día (`routine_day_id`, `exercise_id`, `order_index`, `sets`, `reps`, `base_weight`, `rest_seconds`, `superset_group`, `notes`).
@@ -209,7 +209,7 @@ Definido íntegramente en [`supabase/supabase_schema_dump.sql`](../supabase/supa
 - **Modelo de Fatiga Neuromuscular (Half-Life Decay)**: Decaimiento exponencial $R(t) = e^{-\lambda \cdot t}$, donde $\lambda = \frac{\ln(2)}{t_{1/2}}$ con semividas fisiológicas diferenciadas por grupo (pecho/espalda/cuádriceps 48h, brazos 36h, core/pantorrillas 24h).
 - **Modelo de Retención de 1RM (Fitness-Fatigue Decay)**: Meseta de mantenimiento de 14 días sin pérdidas, seguida de decaimiento con semivida de 28 días acotado por un suelo fisiológico del 50% ($0.5$).
 - **Renderizado SVG Reactivo**: El componente [`BodyMap`](../components/anatomy/body-map.tsx) aísla silueta inerte (`.bm-sil`) de músculos activos (`.bm-m.l0..l4`), utilizando la paleta dorada/ámbar de RU Coach con trazado de juntas nítidas (`stroke: var(--card)`).
-- Documentación completa en [`docs/ANATOMIA_Y_FUSION_OPEN_GYM.md`](./ANATOMIA_Y_FUSION_OPEN_GYM.md).
+- Documentación completa en [`docs/ANATOMY_AND_BIOMECHANICS.md`](./ANATOMY_AND_BIOMECHANICS.md).
 
 ### 5. Arquitectura SPA de Cero Latencia y Rendimiento Nativo Móvil
 - **Caché Progresivo con Serwist (`app/sw.ts`)**: Estrategia Stale-While-Revalidate para catálogos y llamadas estáticas, Cache-First para fuentes y recursos visuales (GIFs y avatares), y Network-First con fallback offline para rutas de navegación.

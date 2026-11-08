@@ -5,80 +5,39 @@
 
 ---
 
-## 1. Lo que YA está al 100% (No tocar nada)
+## 1. Lo que YA está al 100% (Producción en Vivo)
 
+- [x] **Dominio y DNS Oficial (`rucoach.app`):**
+  - Registrado en Name.com y gestionado en Cloudflare (`elinore.ns.cloudflare.com`, `zod.ns.cloudflare.com`).
+  - Registros DNS activos en modo Solo DNS (Vercel A/CNAME y Resend DKIM/SPF/MX).
+- [x] **Despliegue y Certificado SSL en Vercel:**
+  - `rucoach.app` y `www.rucoach.app` (redirección 307) vinculados y activos con certificado HTTPS universal.
+  - Variables de entorno actualizadas en producción:
+    - `NEXT_PUBLIC_APP_URL="https://rucoach.app"`
+    - `EMAIL_FROM="RU Coach <noreply@rucoach.app>"`
+- [x] **Dominio Verificado en Resend:**
+  - Estado: **`verified`** (DKIM, SPF y Recepción de correos 100% aprobados).
 - [x] **Base de Datos de Producción (Supabase `zhsreeimxiggjidgmvpo`):**
   - 22 tablas, funciones PL/pgSQL, triggers automáticos y políticas RLS activas.
   - 1,330 ejercicios bilingües con videos en Cloudflare R2 y mapeo muscular anatómico.
   - 43 logros de gamificación, rutinas y datos de clientes restaurados.
 - [x] **Organización Oficial de GitHub:**
   - Repositorio transferido y sincronizado en [`rucoach-app/rucoach`](https://github.com/rucoach-app/rucoach).
-- [x] **Cuenta Dedicada de Resend:**
-  - Conectada a Supabase Auth por SMTP (`smtp.resend.com`).
-  - Las 6 plantillas de correo HTML con diseño RU Coach e inputs OTP de 8 dígitos ya están inyectadas y activas.
-- [x] **Despliegue en Vercel:**
-  - Compilación sin errores (52 rutas estáticas y dinámicas).
-  - Bug del creador de ejercicios resuelto (soporte multimuscular y mapa 2D).
 - [x] **Almacenamiento Multimedia (Cloudflare R2):**
   - Bucket `gymcoaching-exercises` activo con todas las fotos y videos.
 
 ---
 
-## 2. Los Únicos 4 Pasos Pendientes (Toma ~10 minutos en total)
+## 2. El Único Paso Restante: Crear la Cuenta del Coach Titular
 
 ```mermaid
 flowchart LR
-    P1["1. Name.com\nReclamar rucoach.app"] --> P2["2. Cloudflare DNS\nPegar Nameservers y 6 registros"]
-    P2 --> P3["3. Vercel & R2\nAsignar dominio y CORS"]
-    P3 --> P4["4. Crear Coach\nRegistrar coach titular"]
+    P1["1. Registrar Coach\nhttps://rucoach.app/auth/sign-up"] --> P2["2. Código Maestro\nGYMCOACH"]
+    P2 --> P3["3. Onboarding\n2 pasos simples"]
+    P3 --> P4["4. ¡Listo!\nPlataforma entregada"]
 ```
 
----
-
-### Paso 1: Reclamar el Dominio en Name.com
-1. Entra a [Name.com](https://www.name.com) con tu cuenta del GitHub Student Developer Pack.
-2. Registra el dominio: **`rucoach.app`**.
-
----
-
-### Paso 2: Configurar DNS en Cloudflare
-1. En tu panel de **Cloudflare** → haz clic en **Add a domain** → escribe **`rucoach.app`** (Plan Free).
-2. Cloudflare te dará **2 Nameservers** (ejemplo: `xxx.ns.cloudflare.com`).
-3. Ve a **Name.com** → selecciona `rucoach.app` → **Nameservers** → reemplázalos por los 2 de Cloudflare.
-4. En **Cloudflare DNS**, agrega estos **6 registros** en modo **DNS Only (Nube Gris)**:
-
-#### A) Para la Web (Vercel):
-| Tipo | Nombre | Contenido / Destino | Proxy |
-| :--- | :--- | :--- | :--- |
-| **`A`** | `@` | `76.76.21.21` | **DNS Only (Gris)** |
-| **`CNAME`** | `www` | `cname.vercel-dns.com` | **DNS Only (Gris)** |
-
-#### B) Para los Correos (Resend):
-| Tipo | Nombre | Valor / Contenido | Prioridad | Proxy |
-| :--- | :--- | :--- | :---: | :--- |
-| **`TXT`** | `resend._domainkey` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUu4ewf/HpT3PiyZLWdf8SUXVlmuxHqvSnFBOoDkvBm6A81JKqWTDqSnj3tWmr9CmyyznUt55DDtMAYk2ZecdHmc8TAyW5Za0dQCB7DwthjMx7qq565YsR7QyWazzHQaDL7vaYwizNmVKW++rNNIYLSaXPSDMXDMAtnIUs4NWogwIDAQAB` | - | **DNS Only (Gris)** |
-| **`CNAME`** | `send` | `send.forge.rmta.net` | - | **DNS Only (Gris)** |
-| **`CNAME`** | `rsend` | `rsend.forge.rmta.net` | - | **DNS Only (Gris)** |
-| **`MX`** | `@` | `receive.forge.rmta.net` | `10` | **DNS Only (Gris)** |
-
-5. En tu panel de **Resend**, da clic en **Verify DNS Records** (marcará verde al instante).
-
----
-
-### Paso 3: Asignar Dominio en Vercel y CORS en R2
-1. **En Vercel:**
-   - Ve a **Settings** → **Domains** → escribe **`rucoach.app`** y agrégalo (con redirección de `www.rucoach.app`).
-   - Con Vercel CLI actualizamos las 2 variables finales:
-     ```bash
-     vercel env update NEXT_PUBLIC_APP_URL production --value "https://rucoach.app" --yes
-     vercel env update EMAIL_FROM production --value "RU Coach <noreply@rucoach.app>" --yes
-     ```
-2. **En Cloudflare R2:**
-   - Bucket `gymcoaching-exercises` → **Settings** → **CORS Policy** → añadir `"https://rucoach.app"` y `"https://www.rucoach.app"` a los orígenes permitidos.
-
----
-
-### Paso 4: Crear la Cuenta del Coach Titular
+### Paso Final: Registrar el Coach Titular
 1. Entra a:  
    👉 **`https://rucoach.app/auth/sign-up`**
 2. Ingresa el código maestro: **`GYMCOACH`**.

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { resendInvitationCodeEmail } from "@/app/actions/invitations";
+import { formatMexicoWhatsAppNumber, getPublicAppUrl } from "@/lib/utils";
 
 interface AccessCodeBannerProps {
   code: string;
@@ -36,10 +37,7 @@ export function AccessCodeBanner({
   const [copied, setCopied] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
-  const signUpUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/auth/sign-up?code=${code}`
-      : "";
+  const signUpUrl = `${getPublicAppUrl()}/auth/sign-up?code=${code}`;
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code);
@@ -56,16 +54,10 @@ export function AccessCodeBanner({
   const handleShareWhatsApp = () => {
     const greeting = clientName ? `¡Hola ${clientName}! ` : "¡Hola! ";
     const text = `${greeting}Te comparto tu código de invitación para activar tu cuenta en RU Coach:\n\n🔑 Código: *${code}*\n👉 Regístrate directo aquí: ${signUpUrl}`;
-    const digits = (clientPhone || "").replace(/\D/g, "");
-    const phoneParam =
-      digits.length === 10
-        ? `52${digits}`
-        : digits.length > 10
-          ? digits
-          : "";
+    const phoneParam = formatMexicoWhatsAppNumber(clientPhone);
     const waUrl = phoneParam
-      ? `https://wa.me/${phoneParam}?text=${encodeURIComponent(text)}`
-      : `https://wa.me/?text=${encodeURIComponent(text)}`;
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 

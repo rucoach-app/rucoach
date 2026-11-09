@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatMexicoWhatsAppNumber, getPublicAppUrl } from "@/lib/utils";
 
 export type InvitationCodeItem = {
   id: string;
@@ -98,9 +99,7 @@ export function InvitationCardsClient({
   };
 
   const getSignUpUrl = (code: string) =>
-    typeof window !== "undefined"
-      ? `${window.location.origin}/auth/sign-up?code=${code}`
-      : `/auth/sign-up?code=${code}`;
+    `${getPublicAppUrl()}/auth/sign-up?code=${code}`;
 
   const handleCopyLink = (code: string) => {
     const url = getSignUpUrl(code);
@@ -131,16 +130,10 @@ export function InvitationCardsClient({
     const roleLabel =
       item.for_role === "admin" ? "como Coach en RU Coach" : "a RU Coach";
     const text = `${greeting}Te comparto tu código de invitación para unirte ${roleLabel}:\n\n🔑 Código: *${item.code}*\n👉 Regístrate directo aquí: ${url}`;
-    const digits = (item.linked_phone || "").replace(/\D/g, "");
-    const phoneParam =
-      digits.length === 10
-        ? `52${digits}`
-        : digits.length > 10
-          ? digits
-          : "";
+    const phoneParam = formatMexicoWhatsAppNumber(item.linked_phone);
     const waUrl = phoneParam
-      ? `https://wa.me/${phoneParam}?text=${encodeURIComponent(text)}`
-      : `https://wa.me/?text=${encodeURIComponent(text)}`;
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 

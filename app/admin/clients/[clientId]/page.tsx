@@ -275,6 +275,29 @@ export default async function ClientProfilePage({
       />
 
       <div className={cn(ADMIN_DATA_PAGE_SHELL, "flex flex-col gap-8")}>
+        {client.status === "pending_payment" && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+                <CreditCard className="size-4.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-foreground">
+                  Activación de Membresía Pendiente
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                  <strong>{client.full_name}</strong> ya completó su onboarding inicial y está esperando la confirmación de su pago para desbloquear su acceso a la app.
+                </p>
+              </div>
+            </div>
+            <Button asChild size="sm" className="rounded-xl font-bold shrink-0">
+              <Link href={`/admin/payments/new?clientId=${clientId}`}>
+                <CreditCard className="mr-2 size-4" />
+                Registrar Pago y Activar
+              </Link>
+            </Button>
+          </div>
+        )}
         {effectiveAccessCode && !client.user_id && (
           <AccessCodeBanner
             code={effectiveAccessCode}

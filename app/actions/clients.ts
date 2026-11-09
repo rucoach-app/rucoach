@@ -224,12 +224,17 @@ export async function updateClientStatus(clientId: string, status: string) {
 
   const supabase = await createClient();
 
+  const updatePayload: Record<string, unknown> = {
+    status,
+    updated_at: new Date().toISOString(),
+  };
+  if (status === "active") {
+    updatePayload.admin_approved = true;
+  }
+
   const { error } = await supabase
     .from("clients")
-    .update({
-      status,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", clientId)
     .eq("coach_id", user.id);
 
@@ -237,9 +242,11 @@ export async function updateClientStatus(clientId: string, status: string) {
     return { success: false, error: error.message };
   }
 
-  // Si el cliente tiene un usuario vinculado, el trigger se encargará de sincronizar con profiles.
-  // Pero necesitamos revalidar el path
   revalidatePath("/admin/clients");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/payments");
+  revalidatePath("/suspended");
+  revalidatePath("/client/dashboard");
 
   return { success: true };
 }

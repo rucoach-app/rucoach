@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthData } from "@/lib/auth-utils";
+import { formatMexicoWhatsAppNumber } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,14 +47,17 @@ function formatWhatsAppPhone(rawPhone?: string | null): {
   waNumber: string;
   displayPhone: string;
 } {
-  const digits = (rawPhone || DEFAULT_COACH_PHONE).replace(/\D/g, "") || DEFAULT_COACH_PHONE;
-  // Si son 10 dígitos nacionales (México), anteponer lada internacional 52 para wa.me
-  const waNumber = digits.length === 10 ? `52${digits}` : digits;
-  const local10 = digits.length === 12 && digits.startsWith("52") ? digits.slice(2) : digits;
+  const waNumber =
+    formatMexicoWhatsAppNumber(rawPhone) ||
+    formatMexicoWhatsAppNumber(DEFAULT_COACH_PHONE);
+  const local10 =
+    waNumber.length === 12 && waNumber.startsWith("52")
+      ? waNumber.slice(2)
+      : waNumber;
   const displayPhone =
     local10.length === 10
       ? `${local10.slice(0, 3)} ${local10.slice(3, 6)} ${local10.slice(6)}`
-      : digits;
+      : waNumber;
   return { waNumber, displayPhone };
 }
 
@@ -81,7 +86,7 @@ export default async function SuspendedPage({
   // Verificar en tiempo real si el cliente ya tiene su pago/membresía activa
   const { data: clientRow } = await supabase
     .from("clients")
-    .select("id, status, membership_end")
+    .select("id, coach_id, status, membership_end")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -114,14 +119,39 @@ export default async function SuspendedPage({
     redirect("/client/dashboard");
   }
 
-  const { data: gym } = await supabase
-    .from("gym_settings")
-    .select("phone, gym_name")
-    .limit(1)
-    .maybeSingle();
+  const admin = createAdminClient();
+  let coachPhoneRaw: string | null = null;
+  let gymNameRaw: string | null = null;
 
-  const brandName = normalizeBrandName(gym?.gym_name);
-  const { waNumber, displayPhone } = formatWhatsAppPhone(gym?.phone);
+  if (clientRow?.coach_id) {
+    const [{ data: coachGym }, { data: coachProfile }] = await Promise.all([
+      admin
+        .from("gym_settings")
+        .select("phone, gym_name")
+        .eq("admin_id", clientRow.coach_id)
+        .maybeSingle(),
+      admin
+        .from("profiles")
+        .select("phone")
+        .eq("id", clientRow.coach_id)
+        .maybeSingle(),
+    ]);
+    coachPhoneRaw = coachProfile?.phone || coachGym?.phone || null;
+    gymNameRaw = coachGym?.gym_name || null;
+  }
+
+  if (!coachPhoneRaw || !gymNameRaw) {
+    const { data: fallbackGym } = await admin
+      .from("gym_settings")
+      .select("phone, gym_name")
+      .limit(1)
+      .maybeSingle();
+    coachPhoneRaw = coachPhoneRaw || fallbackGym?.phone || null;
+    gymNameRaw = gymNameRaw || fallbackGym?.gym_name || null;
+  }
+
+  const brandName = normalizeBrandName(gymNameRaw);
+  const { waNumber, displayPhone } = formatWhatsAppPhone(coachPhoneRaw);
   const userEmail = profile?.email || user?.email || "";
   const userName = profile?.full_name || "";
 
@@ -166,7 +196,7 @@ export default async function SuspendedPage({
     waText = `Hola Rodrigo, mi membresía en RU Coach ha vencido${userName ? ` (soy ${userName})` : ""} y me gustaría renovarla. Mi correo es: ${userEmail}`;
   }
 
-  const waLink = `${waBase}${waNumber}?text=${encodeURIComponent(waText)}`;
+  const waLink = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent(waText)}`;
 
   return (
     <div className="min-h-dvh bg-background text-foreground flex flex-col">

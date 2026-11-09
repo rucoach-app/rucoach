@@ -75,6 +75,7 @@ import {
   MessageSquare,
   UserPlus,
   KeyRound,
+  CreditCard,
 } from "lucide-react";
 import {
   Tooltip,
@@ -250,9 +251,76 @@ export function CoachOverviewClient({
       });
   }, [cardsState, search, activeTab, planFilter, routineFilter]);
 
+  const pendingPaymentCards = useMemo(
+    () => cardsState.filter((c) => c.status === "pending_payment"),
+    [cardsState],
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-6 lg:gap-8">
       <section className="flex flex-col gap-4" aria-label="Resumen y actividad">
+        {pendingPaymentCards.length > 0 && (
+          <Card className="overflow-hidden rounded-2xl border-amber-500/40 bg-amber-500/10 shadow-sm">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+                    <CreditCard className="size-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-foreground">
+                      Activación y Pago Pendiente ({pendingPaymentCards.length})
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Nuevos asesorados que ya completaron su registro inicial y esperan confirmación de pago para acceder a la app.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                  {pendingPaymentCards.map((c) => (
+                    <div
+                      key={c.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-card/90 px-3.5 py-2.5 shadow-xs"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-foreground truncate">
+                          {c.fullName}
+                        </p>
+                        <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                          Esperando confirmación de pago
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          asChild
+                          size="sm"
+                          className="h-8 rounded-lg px-2.5 text-xs font-bold"
+                        >
+                          <Link href={`/admin/payments/new?clientId=${c.id}`}>
+                            <CreditCard className="mr-1.5 size-3.5" />
+                            Registrar Pago
+                          </Link>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 rounded-lg px-2.5 text-xs font-semibold"
+                          onClick={() => handleStatusChange(c.id, "active")}
+                        >
+                          <UserCheck className="mr-1 size-3.5 text-emerald-500" />
+                          Activar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {metrics.attentionCount > 0 ? (
           <Alert
             variant="default"
@@ -570,6 +638,11 @@ export function CoachOverviewClient({
                         icon: <Edit2 className="mr-2 size-4" />,
                         href: `/admin/clients/${c.id}/edit`,
                       },
+                      {
+                        label: "Registrar pago / Activar",
+                        icon: <CreditCard className="mr-2 size-4" />,
+                        href: `/admin/payments/new?clientId=${c.id}`,
+                      },
                       ...(c.userId
                         ? [
                             {
@@ -600,7 +673,10 @@ export function CoachOverviewClient({
                         },
                       ]
                     : []),
-                  ...(c.status === "active" || c.status === "suspended"
+                  ...(c.status === "active" ||
+                  c.status === "suspended" ||
+                  c.status === "pending_payment" ||
+                  c.status === "expired"
                     ? [
                         {
                           separatorBefore: true as const,
@@ -614,7 +690,7 @@ export function CoachOverviewClient({
                                   className: "text-warning focus:text-warning",
                                 }
                               : {
-                                  label: "Activar",
+                                  label: "Activar acceso directo",
                                   icon: <UserCheck className="mr-2 size-4" />,
                                   onClick: () =>
                                     handleStatusChange(c.id, "active"),
@@ -804,6 +880,24 @@ export function CoachOverviewClient({
                           </span>
                         </div>
                       </div>
+
+                      {(c.status === "pending_payment" ||
+                        c.status === "expired") && (
+                        <div className="mt-1 flex items-center justify-between gap-2 rounded-[1rem] border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 shadow-sm">
+                          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-black tracking-widest uppercase">
+                            {c.status === "pending_payment"
+                              ? "Pago pendiente"
+                              : "Membresía vencida"}
+                          </span>
+                          <Link
+                            href={`/admin/payments/new?clientId=${c.id}`}
+                            className="inline-flex items-center gap-1 text-[13px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                          >
+                            <CreditCard className="size-3.5" />
+                            Confirmar pago →
+                          </Link>
+                        </div>
+                      )}
 
                       <div className="mt-1 flex items-center justify-between gap-2 rounded-[1rem] border border-border/40 bg-background/50 px-4 py-2.5 shadow-sm">
                         <span className="text-[11px] text-muted-foreground font-black tracking-widest uppercase opacity-80">

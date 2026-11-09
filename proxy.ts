@@ -3,6 +3,15 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function proxy(request: NextRequest) {
+  const host = request.headers.get('host') || request.nextUrl.hostname
+  if (host === 'rucoach-development.vercel.app') {
+    const canonicalUrl = new URL(
+      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+      'https://rucoach.app',
+    )
+    return NextResponse.redirect(canonicalUrl, 308)
+  }
+
   const url = request.nextUrl.pathname
 
   const requestHeaders = new Headers(request.headers)

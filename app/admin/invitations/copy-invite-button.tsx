@@ -4,15 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { toast } from "sonner";
+import { getPublicAppUrl } from "@/lib/utils";
 
 export function CopyInviteButton({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    const url =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/auth/sign-up?code=${code}`
-        : "";
+    const url = `${getPublicAppUrl()}/auth/sign-up?code=${code}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);

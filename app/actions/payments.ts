@@ -23,8 +23,10 @@ async function syncClientPlanDatesFromPayment(
       : `${fields.period_end}T23:59:59`;
     const isExpired = new Date(endIso) < new Date();
     clientUpdate.status = isExpired ? "expired" : "active";
+    if (!isExpired) clientUpdate.admin_approved = true;
   } else {
     clientUpdate.status = "active";
+    clientUpdate.admin_approved = true;
   }
   if (fields.plan_id) clientUpdate.current_plan_id = fields.plan_id;
   

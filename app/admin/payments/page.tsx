@@ -189,14 +189,21 @@ export default async function AdminPaymentsPage() {
   // Evaluar estado efectivo de membresía por cliente usando fecha de corte real
   const clientsWithEffectiveStatus = clientRows.map((c) => {
     const daysLeft = getDaysUntilDate(c.membership_end);
+    const isPendingPayment = c.status === "pending_payment";
     const isExpired =
-      c.status === "expired" || (daysLeft !== null && daysLeft < 0);
+      !isPendingPayment &&
+      (c.status === "expired" || (daysLeft !== null && daysLeft < 0));
     const isExpiringSoon =
-      !isExpired && daysLeft !== null && daysLeft >= 0 && daysLeft <= 5;
-    const isActive = !isExpired && c.status === "active";
+      !isPendingPayment &&
+      !isExpired &&
+      daysLeft !== null &&
+      daysLeft >= 0 &&
+      daysLeft <= 5;
+    const isActive = !isExpired && !isPendingPayment && c.status === "active";
     return {
       ...c,
       daysLeft,
+      isPendingPayment,
       isExpired,
       isExpiringSoon,
       isActive,
@@ -206,6 +213,9 @@ export default async function AdminPaymentsPage() {
   const activeClientsCount = clientsWithEffectiveStatus.filter(
     (c) => c.isActive,
   ).length;
+  const pendingPaymentClients = clientsWithEffectiveStatus.filter(
+    (c) => c.isPendingPayment,
+  );
   const expiredClients = clientsWithEffectiveStatus.filter((c) => c.isExpired);
   const expiringSoonClients = clientsWithEffectiveStatus.filter(
     (c) => c.isExpiringSoon,
@@ -213,6 +223,7 @@ export default async function AdminPaymentsPage() {
   const expiredClientsCount = expiredClients.length;
 
   const clientsNeedingAttention = [
+    ...pendingPaymentClients,
     ...expiredClients,
     ...expiringSoonClients,
   ];
@@ -258,7 +269,9 @@ export default async function AdminPaymentsPage() {
               description={
                 pendingCount > 0
                   ? `${pendingCount} cobro${pendingCount === 1 ? "" : "s"} pendiente${pendingCount === 1 ? "" : "s"}`
-                  : "Sin adeudos"
+                  : pendingPaymentClients.length > 0
+                    ? `${pendingPaymentClients.length} nuevo${pendingPaymentClients.length === 1 ? "" : "s"} por confirmar 1er pago`
+                    : "Sin adeudos"
               }
               tone="warning"
             />
@@ -267,17 +280,25 @@ export default async function AdminPaymentsPage() {
               value={`${activeClientsCount}/${clientRows.length}`}
               label="Membresías Vigentes"
               description={
-                expiredClientsCount > 0
-                  ? `${expiredClientsCount} vencida${expiredClientsCount === 1 ? "" : "s"} por renovar`
-                  : expiringSoonClients.length > 0
-                    ? `${expiringSoonClients.length} por vencer pronto`
-                    : "Todas al corriente"
+                pendingPaymentClients.length > 0
+                  ? `${pendingPaymentClients.length} por activar (1er pago)`
+                  : expiredClientsCount > 0
+                    ? `${expiredClientsCount} vencida${expiredClientsCount === 1 ? "" : "s"} por renovar`
+                    : expiringSoonClients.length > 0
+                      ? `${expiringSoonClients.length} por vencer pronto`
+                      : "Todas al corriente"
               }
-              tone={expiredClientsCount > 0 ? "destructive" : "neutral"}
+              tone={
+                expiredClientsCount > 0
+                  ? "destructive"
+                  : pendingPaymentClients.length > 0
+                    ? "warning"
+                    : "neutral"
+              }
             />
           </div>
 
-          {/* Alerta Operativa de Membresías Vencidas o Próximas a Vencer */}
+          {/* Alerta Operativa de Activaciones, Membresías Vencidas o Próximas a Vencer */}
           {clientsNeedingAttention.length > 0 && (
             <Card className="overflow-hidden rounded-2xl border-destructive/30 bg-destructive/5 shadow-sm">
               <CardContent className="p-4 sm:p-5">
@@ -289,10 +310,10 @@ export default async function AdminPaymentsPage() {
                       </div>
                       <div>
                         <h2 className="text-sm font-bold text-foreground">
-                          Renovaciones de Membresía Requeridas ({clientsNeedingAttention.length})
+                          Activaciones y Renovaciones Requeridas ({clientsNeedingAttention.length})
                         </h2>
                         <p className="text-xs text-muted-foreground">
-                          Asesorados cuya vigencia ya terminó o vence en los próximos 5 días.
+                          Asesorados esperando confirmación de su primer pago o cuya vigencia ya venció / está por vencer.
                         </p>
                       </div>
                     </div>
@@ -311,7 +332,14 @@ export default async function AdminPaymentsPage() {
                               {client.full_name}
                             </p>
                             <div className="mt-0.5 flex items-center gap-1.5">
-                              {client.isExpired ? (
+                              {client.isPendingPayment ? (
+                                <Badge
+                                  variant="outline"
+                                  className="border-amber-500/40 bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0"
+                                >
+                                  Nuevo · Falta 1er pago
+                                </Badge>
+                              ) : client.isExpired ? (
                                 <Badge
                                   variant="outline"
                                   className="border-destructive/35 bg-destructive/10 text-destructive text-[10px] font-bold px-1.5 py-0"
@@ -337,7 +365,7 @@ export default async function AdminPaymentsPage() {
                           >
                             <Link href={`/admin/payments/new?clientId=${client.id}`}>
                               <RefreshCw className="mr-1.5 size-3" />
-                              Renovar
+                              {client.isPendingPayment ? "Activar / Pagar" : "Renovar"}
                             </Link>
                           </Button>
                         </div>

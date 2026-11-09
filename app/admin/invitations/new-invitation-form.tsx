@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { getPublicAppUrl } from "@/lib/utils";
 
 interface NewInvitationFormProps {
   onCodeCreated?: (code: InvitationCodeItem) => void;
@@ -57,9 +58,7 @@ export function NewInvitationForm({ onCodeCreated }: NewInvitationFormProps) {
   const hasSpecificEmail = emailValue.trim().length > 0;
 
   const getSignUpUrl = (code: string) =>
-    typeof window !== "undefined"
-      ? `${window.location.origin}/auth/sign-up?code=${code}`
-      : `/auth/sign-up?code=${code}`;
+    `${getPublicAppUrl()}/auth/sign-up?code=${code}`;
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard

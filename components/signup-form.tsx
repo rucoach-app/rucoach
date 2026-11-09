@@ -19,7 +19,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { cn, getPublicAppUrl } from '@/lib/utils'
 
 function SignUpFormInner({
   className,
@@ -215,7 +215,7 @@ function SignUpFormInner({
         password,
         options: {
           data: { role: signUpRole },
-          emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
+          emailRedirectTo: `${getPublicAppUrl()}/auth/callback`,
         },
       })
 

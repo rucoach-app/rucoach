@@ -22,11 +22,13 @@ const EMAIL_FROM =
   'RU Coach <noreply@rucoach.app>'
 
 function getAppUrl(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '')
+  if (
+    envUrl &&
+    !envUrl.includes('vercel.app') &&
+    !envUrl.includes('localhost')
+  ) {
+    return envUrl
   }
   return 'https://rucoach.app'
 }

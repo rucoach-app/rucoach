@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   CardContent,
   CardTitle,
@@ -547,9 +548,20 @@ export function ClientManagementContent({
                       </div>
                     )}
                     {client.status === "pending_payment" && (
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 text-[11px] text-amber-600 border border-amber-500/20">
-                        <AlertTriangle className="size-3.5 shrink-0" />
-                        <span>Falta registrar su pago para activar su cuenta</span>
+                      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 text-[11px] text-amber-700 dark:text-amber-300 border border-amber-500/25">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <AlertTriangle className="size-3.5 shrink-0 text-amber-500" />
+                          <span className="font-semibold">
+                            Falta confirmar pago para activar
+                          </span>
+                        </div>
+                        <Link
+                          href={`/admin/payments/new?clientId=${client.id}`}
+                          className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 hover:underline shrink-0"
+                        >
+                          <CreditCard className="size-3.5" />
+                          Registrar pago →
+                        </Link>
                       </div>
                     )}
                   </CardContent>

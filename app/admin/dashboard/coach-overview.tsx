@@ -583,6 +583,7 @@ export async function CoachOverview() {
     }
 
     const isPending = c.status === "pending";
+    const isPendingPayment = c.status === "pending_payment";
     const isExpired = c.status === "expired";
     const isSuspended = c.status === "suspended";
     const isActive = c.status === "active";
@@ -623,6 +624,7 @@ export async function CoachOverview() {
     let attentionReason: string | null = null;
     if (activePainReports.length > 0)
       attentionReason = `Dolor activo: ${activePainReports[0].bodyPart}`;
+    else if (isPendingPayment) attentionReason = "Pago por confirmar";
     else if (isRoutineCompleted) attentionReason = "Rutina completada";
     else if (isPending) attentionReason = "Falta registro";
     else if (isExpired) attentionReason = "Plan vencido";
@@ -683,7 +685,8 @@ export async function CoachOverview() {
     // Máxima: Dolor activo (6), luego Rutina completada (5), Plan vencido (4), Sin rutina (3), Inactivo +7d (2), Falta registro (1)
     const sorted = [...attentionCandidates].sort((a, b) => {
       const getScore = (c: CoachClientCard) => {
-        if (c.activePainReports && c.activePainReports.length > 0) return 6;
+        if (c.activePainReports && c.activePainReports.length > 0) return 7;
+        if (c.status === "pending_payment") return 6;
         if (c.attentionReason === "Rutina completada") return 5;
         if (c.status === "expired") return 4;
         if (c.status === "active" && !c.assignedRoutineId) return 3;

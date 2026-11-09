@@ -168,7 +168,6 @@ export default async function SuspendedPage({
   );
   let icon = <AlertTriangle className="size-9 sm:size-10 text-destructive" />;
 
-  const waBase = "https://wa.me/";
   let waText = `Hola Rodrigo, necesito apoyo con mi acceso a RU Coach${userName ? ` (soy ${userName})` : ""}. Mi correo es: ${userEmail}`;
 
   if (isPaused) {

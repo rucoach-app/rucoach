@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CalendarDays } from "lucide-react";
+import { getNowInTimezone } from "@/lib/calendar-date";
 
 function pad2(n: number) {
   return n.toString().padStart(2, "0");
@@ -39,7 +40,7 @@ function formatDateInTimezone(d: Date, timeZone: string): string {
 }
 
 function clampMonthYear(y: number, m1: number) {
-  const now = new Date();
+  const now = getNowInTimezone();
   const year =
     Number.isFinite(y) && y >= 2020 && y <= 2100 ? y : now.getFullYear();
   let monthIndex = m1 - 1; // URL uses 1–12
@@ -72,7 +73,7 @@ export default async function ClientCalendarPage({
 
   if (!clientRecord) redirect("/client/dashboard");
 
-  const now = new Date();
+  const now = getNowInTimezone();
   const hasExplicitMonth = sp.y != null || sp.m != null;
   const parsedY = sp.y != null ? Number(sp.y) : now.getFullYear();
   const parsedM = sp.m != null ? Number(sp.m) : now.getMonth() + 1;

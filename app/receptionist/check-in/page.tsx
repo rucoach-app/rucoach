@@ -13,6 +13,7 @@ import {
   Clock,
   Activity,
 } from "lucide-react";
+import { getNowInTimezone, getStartOfDayInTimezone } from "@/lib/calendar-date";
 
 export default async function ReceptionistCheckInPage({
   searchParams,
@@ -29,12 +30,8 @@ export default async function ReceptionistCheckInPage({
   const query = q.trim().toLowerCase();
 
   const supabase = await createClient();
-  const now = new Date();
-  const startOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-  ).toISOString();
+  const now = getNowInTimezone();
+  const startOfToday = getStartOfDayInTimezone().toISOString();
 
   const [clientsRes, todaySessionsRes] = await Promise.all([
     supabase
@@ -157,6 +154,7 @@ export default async function ReceptionistCheckInPage({
                         {
                           hour: "2-digit",
                           minute: "2-digit",
+                          timeZone: "America/Mexico_City",
                         },
                       )}
                     </span>

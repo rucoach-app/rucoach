@@ -35,6 +35,7 @@ interface WorkoutCompletionData {
   routineDayId?: string;
   sets: SetData[];
   durationMinutes: number;
+  startedAt?: string;
   rating?: number;
   notes?: string;
 }
@@ -116,16 +117,21 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
   );
   const uniqueExercises = new Set(data.sets.map((s) => s.exerciseId)).size;
 
+  const finishedAtIso = new Date().toISOString();
+  const parsedStartedAtMs = data.startedAt ? new Date(data.startedAt).getTime() : Number.NaN;
+  const startedAtIso =
+    Number.isFinite(parsedStartedAtMs) && parsedStartedAtMs <= Date.now()
+      ? new Date(parsedStartedAtMs).toISOString()
+      : new Date(Date.now() - Math.max(0, data.durationMinutes) * 60000).toISOString();
+
   const { data: session, error: sessionError } = await supabase
     .from("workout_sessions")
     .insert({
       client_id: data.clientId,
       routine_day_id: data.routineDayId,
       status: "completed",
-      started_at: new Date(
-        Date.now() - data.durationMinutes * 60000,
-      ).toISOString(),
-      finished_at: new Date().toISOString(),
+      started_at: startedAtIso,
+      finished_at: finishedAtIso,
       duration_minutes: data.durationMinutes,
       exercises_completed: uniqueExercises,
       exercises_skipped: 0,
@@ -239,26 +245,9 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
     (s) => isPRByExerciseSet.get(`${s.exerciseId}:${s.setNumber}`) ?? false,
   );
   if (prSets.length > 0) {
-    const prEvents = prSets.map((prSet) => {
-      const estimated1RM = calculate1RM(prSet.weight, prSet.reps);
-
-      return {
-        client_id: data.clientId,
-        exercise_id: prSet.exerciseId,
-        workout_session_id: session.id,
-        kind: "estimated_1rm" as const,
-        weight_kg: prSet.weight,
-        reps: prSet.reps,
-        estimated_1rm: estimated1RM,
-        achieved_at: new Date().toISOString(),
-        meta: {
-          source: "client_flag",
-        },
-      };
-    });
-
-    await supabase.from("pr_events").insert(prEvents);
-
+    // Anclar todos los PR de la sesión a started_at de la sesión (no a finished_at)
+    // y guardar solo el mejor PR por ejercicio en la sesión para evitar puntos duplicados el mismo día.
+    const achievedAtIso = session.started_at ?? startedAtIso;
     const bestPrByExercise = new Map<
       string,
       {
@@ -271,11 +260,15 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
         achieved_at: string;
       }
     >();
-    const achievedAtIso = new Date().toISOString();
+
     for (const prSet of prSets) {
       const estimated1RM = calculate1RM(prSet.weight, prSet.reps);
       const prev = bestPrByExercise.get(prSet.exerciseId);
-      if (!prev || estimated1RM >= prev.estimated_1rm) {
+      if (
+        !prev ||
+        estimated1RM > prev.estimated_1rm ||
+        (estimated1RM === prev.estimated_1rm && prSet.weight >= prev.weight_kg)
+      ) {
         bestPrByExercise.set(prSet.exerciseId, {
           client_id: data.clientId,
           exercise_id: prSet.exerciseId,
@@ -286,6 +279,24 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
           achieved_at: achievedAtIso,
         });
       }
+    }
+
+    const prEvents = Array.from(bestPrByExercise.values()).map((best) => ({
+      client_id: best.client_id,
+      exercise_id: best.exercise_id,
+      workout_session_id: session.id,
+      kind: "estimated_1rm" as const,
+      weight_kg: best.weight_kg,
+      reps: best.reps,
+      estimated_1rm: best.estimated_1rm,
+      achieved_at: best.achieved_at,
+      meta: {
+        source: "client_flag",
+      },
+    }));
+
+    if (prEvents.length > 0) {
+      await supabase.from("pr_events").insert(prEvents);
     }
 
     const prUpsertPayload = Array.from(bestPrByExercise.values());

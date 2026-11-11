@@ -36,6 +36,7 @@ import {
   computeStrengthProgressInsight,
   computeVolumeInsightFromVolumes,
 } from "@/lib/progress-insights";
+import { toZonedWallClockDate } from "@/lib/calendar-date";
 
 export default async function ClientProgressPage() {
   const user = await getAuthUser();
@@ -316,7 +317,7 @@ export default async function ClientProgressPage() {
         reps,
         est1rm,
         achievedAt: bestPoint.achieved_at,
-        dateLabel: format(new Date(bestPoint.achieved_at), "dd MMM yyyy", {
+        dateLabel: format(toZonedWallClockDate(bestPoint.achieved_at), "dd MMM yyyy", {
           locale: es,
         }),
         sessionsCount: sortedPts.length,

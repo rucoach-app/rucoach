@@ -1,6 +1,6 @@
 /** Etiquetas de sesión para admin/cliente (es-ES). */
 
-import { parseRecordedDate } from '@/lib/calendar-date'
+import { DEFAULT_TIMEZONE, parseRecordedDate } from '@/lib/calendar-date'
 
 /** Fecha de medición: soporta ISO o solo `YYYY-MM-DD` sin bug UTC. */
 export function formatBodyMeasurementDate(recordedAt?: string | null): string {
@@ -14,7 +14,10 @@ export function formatBodyMeasurementDate(recordedAt?: string | null): string {
   return raw.charAt(0).toUpperCase() + raw.slice(1)
 }
 
-export function sessionInstantLabel(iso?: string | null): {
+export function sessionInstantLabel(
+  iso?: string | null,
+  timeZone: string = DEFAULT_TIMEZONE,
+): {
   dateLine: string
   timeLine: string | null
 } {
@@ -26,9 +29,14 @@ export function sessionInstantLabel(iso?: string | null): {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    timeZone,
   })
   const dateLine = raw.charAt(0).toUpperCase() + raw.slice(1)
-  const timeLine = d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
+  const timeLine = d.toLocaleTimeString('es', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone,
+  })
   return { dateLine, timeLine }
 }
 

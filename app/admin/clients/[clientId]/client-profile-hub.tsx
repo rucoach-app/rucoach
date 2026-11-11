@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase/client";
+import { diffWholeDaysFromNow } from "@/lib/calendar-date";
 import {
   ArrowUpRight,
   History,
@@ -152,17 +153,13 @@ function formatDate(iso?: string | null) {
   if (!iso) return "-";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString();
+  return d.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" });
 }
 
 function formatRelativeDays(fromIso?: string | null) {
   if (!fromIso) return "-";
-  const from = new Date(fromIso);
-  if (Number.isNaN(from.getTime())) return "-";
-  const now = new Date();
-  const diff = Math.floor(
-    (now.getTime() - from.getTime()) / (1000 * 60 * 60 * 24),
-  );
+  const diff = diffWholeDaysFromNow(fromIso);
+  if (diff === null) return "-";
   if (diff <= 0) return "hoy";
   if (diff === 1) return "ayer";
   return `hace ${diff} días`;

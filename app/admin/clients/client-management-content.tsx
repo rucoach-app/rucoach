@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { toZonedWallClockDate } from "@/lib/calendar-date";
 import {
   CardContent,
   CardTitle,
@@ -171,17 +172,18 @@ export function ClientManagementContent({
     if (!client.lastSessionAt)
       return { primary: "Nunca" as const, secondary: null as string | null };
     const d = client.daysSinceLastSession;
+    const zonedLast = toZonedWallClockDate(client.lastSessionAt);
     let primary: string;
     if (d === 0) primary = "Hoy";
     else if (d === 1) primary = "Ayer";
     else if (d != null && d < 7) primary = `Hace ${d} días`;
     else
-      primary = format(new Date(client.lastSessionAt), "d MMM yyyy", {
+      primary = format(zonedLast, "d MMM yyyy", {
         locale: es,
       });
     const secondary =
       d != null && d < 7
-        ? format(new Date(client.lastSessionAt), "EEE d MMM · HH:mm", {
+        ? format(zonedLast, "EEE d MMM · HH:mm", {
             locale: es,
           })
         : null;

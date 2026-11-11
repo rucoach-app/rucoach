@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Users, Calendar, CreditCard, CheckCircle } from "lucide-react";
+import {
+  getNowInTimezone,
+  getStartOfDayInTimezone,
+  getStartOfMonthInTimezone,
+} from "@/lib/calendar-date";
 
 export default async function ReceptionistDashboard() {
   const { user, role } = await getAuthData();
@@ -15,17 +20,9 @@ export default async function ReceptionistDashboard() {
 
   const supabase = await createClient();
 
-  const now = new Date();
-  const startOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-  ).toISOString();
-  const startOfMonth = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    1,
-  ).toISOString();
+  const now = getNowInTimezone();
+  const startOfToday = getStartOfDayInTimezone().toISOString();
+  const startOfMonth = getStartOfMonthInTimezone().toISOString();
 
   const [clientsRes, todaySessionsRes, monthPaymentsRes] = await Promise.all([
     supabase.from("clients").select("id, status, membership_end"),

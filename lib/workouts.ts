@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { zonedWallClockToUtcDate } from '@/lib/calendar-date'
 
 export type SessionExerciseLogRow = {
   workout_session_id: string
@@ -55,7 +56,8 @@ export async function getWorkoutSessionsByDateRange(
 ) {
   const supabase = await createClient()
 
-  // Ensure 'to' covers the end of the day in UTC-6 (Mexico) by extending +6h into the next UTC day.
+  // Ensure 'from' starts at 00:00:00 in America/Mexico_City (06:00:00 UTC) and 'to' covers through 23:59:59.999 in America/Mexico_City.
+  const fromStartIso = `${from.slice(0, 10)}T06:00:00.000Z`
   const toDate = new Date(`${to.slice(0, 10)}T00:00:00.000Z`)
   toDate.setUTCDate(toDate.getUTCDate() + 1)
   const toNextDayIso = `${toDate.toISOString().split('T')[0]}T06:00:00.000Z`
@@ -72,7 +74,7 @@ export async function getWorkoutSessionsByDateRange(
     )
     .eq('client_id', clientId)
     .eq('status', 'completed')
-    .gte('started_at', from)
+    .gte('started_at', fromStartIso)
     .lt('started_at', toNextDayIso)
     .order('started_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
@@ -94,10 +96,8 @@ export async function getWorkoutSessionsForMonth(
   limit = 200,
 ) {
   const supabase = await createClient()
-  const start = new Date(year, monthIndex, 1)
-  start.setHours(0, 0, 0, 0)
-  const end = new Date(year, monthIndex + 1, 1)
-  end.setHours(0, 0, 0, 0)
+  const start = zonedWallClockToUtcDate(year, monthIndex, 1, 0, 0, 0, 0)
+  const end = zonedWallClockToUtcDate(year, monthIndex + 1, 1, 0, 0, 0, 0)
 
   const { data, error } = await supabase
     .from('workout_sessions')

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { FitnessGoal, ExperienceLevel } from "@/lib/types";
+import { formatDateKeyInTimezone } from "@/lib/calendar-date";
 
 /** Mapea FitnessGoal (onboarding) a clients.goal (DB) */
 const GOAL_MAP: Record<FitnessGoal, string> = {
@@ -420,7 +421,7 @@ export async function completeOnboarding(data: OnboardingData) {
         .eq("client_id", resolvedClientId);
 
       if ((count ?? 0) === 0) {
-        const todayIso = new Date().toISOString().slice(0, 10);
+        const todayIso = `${formatDateKeyInTimezone(new Date())}T12:00:00Z`;
         await admin.from("body_measurements").insert({
           client_id: resolvedClientId,
           recorded_at: todayIso,

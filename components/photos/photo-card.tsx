@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { parseRecordedDate } from '@/lib/calendar-date'
 
 export interface ProgressPhoto {
   id: string
@@ -47,9 +48,7 @@ export function PhotoCard({
   className,
   showActions = true,
 }: PhotoCardProps) {
-  const date = new Date(
-    photo.taken_at.includes('T') ? photo.taken_at : `${photo.taken_at}T12:00:00`,
-  )
+  const date = parseRecordedDate(photo.taken_at)
   const formattedDate = format(date, 'd MMM yyyy', { locale: es })
   const viewLabel = VIEW_LABELS[photo.view_type || ''] || photo.view_type || 'General'
 

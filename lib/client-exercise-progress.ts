@@ -1,4 +1,5 @@
 import type { ExercisePoint, ExerciseOption } from '@/components/charts/exercise-progress-chart'
+import { DEFAULT_TIMEZONE, formatDateKeyInTimezone } from '@/lib/calendar-date'
 
 export type ExerciseLogProgressRow = {
   exercise_id: string
@@ -35,15 +36,16 @@ function sessionStartedAt(row: ExerciseLogProgressRow): string | null {
   return Array.isArray(ws) ? ws[0]?.started_at ?? null : ws.started_at
 }
 
-/** Mejor carga por ejercicio en cada sesión (excl. calentamiento) para tendencia sin depender solo de pr_events. */
+/** Mejor carga por ejercicio en cada día calendario local (excl. calentamiento) para tendencia sin depender solo de pr_events. */
 export function buildExerciseProgressFromLogs(
   logs: ExerciseLogProgressRow[] | null | undefined,
+  timeZone: string = DEFAULT_TIMEZONE,
 ): {
   exercises: ExerciseOption[]
   pointsByExerciseId: Record<string, ExercisePoint[]>
   nameById: Map<string, string>
 } {
-  const bestPerSession = new Map<
+  const bestPerDay = new Map<
     string,
     {
       achieved_at: string
@@ -60,16 +62,21 @@ export function buildExerciseProgressFromLogs(
     if (!Number.isFinite(w) || w <= 0) continue
     const startedAt = sessionStartedAt(row)
     if (!startedAt) continue
-    const key = `${row.workout_session_id}:${row.exercise_id}`
-    const prev = bestPerSession.get(key)
+    const dayKey = formatDateKeyInTimezone(startedAt, timeZone)
+    const key = `${dayKey}:${row.exercise_id}`
+    const prev = bestPerDay.get(key)
     const exMeta = Array.isArray(row.exercises) ? row.exercises[0] : row.exercises
     const resolvedName =
       exMeta?.name_es?.trim() ||
       exMeta?.name?.trim() ||
       row.exercise_name?.trim() ||
       'Ejercicio'
-    if (!prev || w > prev.weight_kg) {
-      bestPerSession.set(key, {
+    if (
+      !prev ||
+      w > prev.weight_kg ||
+      (w === prev.weight_kg && (row.reps ?? 0) > (prev.reps ?? 0))
+    ) {
+      bestPerDay.set(key, {
         achieved_at: startedAt,
         exercise_id: row.exercise_id,
         exercise_name: resolvedName,
@@ -82,7 +89,7 @@ export function buildExerciseProgressFromLogs(
   const pointsByExerciseId: Record<string, ExercisePoint[]> = {}
   const nameById = new Map<string, string>()
 
-  for (const v of bestPerSession.values()) {
+  for (const v of bestPerDay.values()) {
     nameById.set(v.exercise_id, v.exercise_name)
     if (!pointsByExerciseId[v.exercise_id]) pointsByExerciseId[v.exercise_id] = []
     pointsByExerciseId[v.exercise_id].push({
@@ -113,11 +120,12 @@ type PrEventRow = {
   exercises?: { name: string; name_es?: string | null } | { name: string; name_es?: string | null }[] | null
 }
 
-/** Añade hitos de pr_events que no estén ya cubiertos por el mismo día + peso (sesión vs historial PR). */
+/** Añade hitos de pr_events que no estén ya cubiertos por el mismo día local (sesión vs historial PR). */
 export function mergePrEventsIntoPoints(
   pointsByExerciseId: Record<string, ExercisePoint[]>,
   nameById: Map<string, string>,
   prRows: PrEventRow[] | null | undefined,
+  timeZone: string = DEFAULT_TIMEZONE,
 ): Record<string, ExercisePoint[]> {
   const out: Record<string, ExercisePoint[]> = {}
   for (const [id, pts] of Object.entries(pointsByExerciseId)) {
@@ -135,12 +143,24 @@ export function mergePrEventsIntoPoints(
     if (meta) nameById.set(id, meta.name_es || meta.name)
 
     if (!out[id]) out[id] = []
-    const dayKey = new Date(r.achieved_at).toISOString().slice(0, 10)
-    const dup = out[id].some(
-      (x) =>
-        new Date(x.achieved_at).toISOString().slice(0, 10) === dayKey && x.weight_kg === w,
+    const dayKey = formatDateKeyInTimezone(r.achieved_at, timeZone)
+    const existingIdx = out[id].findIndex(
+      (x) => formatDateKeyInTimezone(x.achieved_at, timeZone) === dayKey,
     )
-    if (dup) continue
+    if (existingIdx !== -1) {
+      const existing = out[id][existingIdx]
+      if (
+        w > existing.weight_kg ||
+        (w === existing.weight_kg && (r.reps ?? 0) > (existing.reps ?? 0))
+      ) {
+        out[id][existingIdx] = {
+          achieved_at: r.achieved_at,
+          weight_kg: w,
+          reps: r.reps ?? null,
+        }
+      }
+      continue
+    }
     out[id].push({
       achieved_at: r.achieved_at,
       weight_kg: w,

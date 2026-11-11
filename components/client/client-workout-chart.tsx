@@ -57,13 +57,13 @@ export function ClientWorkoutChart({ data }: { data: ChartDataPoint[] }) {
     if (!data.length) return []
     const ref = data[data.length - 1]?.date
     if (!ref) return data
-    const referenceDate = new Date(ref)
+    const referenceDate = new Date(`${ref}T12:00:00`)
     let daysToSubtract = 90
     if (timeRange === '30d') daysToSubtract = 30
     else if (timeRange === '7d') daysToSubtract = 7
     const startDate = new Date(referenceDate)
     startDate.setDate(startDate.getDate() - (daysToSubtract - 1))
-    return data.filter((item) => new Date(item.date) >= startDate)
+    return data.filter((item) => new Date(`${item.date}T12:00:00`) >= startDate)
   }, [data, timeRange])
 
   const sessionsInRange = React.useMemo(

@@ -3,7 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { COACH_OVERVIEW_SESSIONS_CAP } from "@/lib/performance-limits";
 import { fetchLatestCompletedSessionByClients } from "@/lib/admin-client-rollups";
-import { diffWholeDaysFromNow, getNowInTimezone } from "@/lib/calendar-date";
+import {
+  diffWholeDaysFromNow,
+  getNowInTimezone,
+  getStartOfDayInTimezone,
+  getStartOfMonthInTimezone,
+} from "@/lib/calendar-date";
 import { CoachOverviewClient } from "./coach-overview-client";
 
 export type CoachOverviewMetrics = {
@@ -205,24 +210,12 @@ export async function CoachOverview() {
     .map((c) => c.user_id)
     .filter((id): id is string => Boolean(id));
 
-  const startOfWeek = new Date(nowInTz);
-  startOfWeek.setDate(startOfWeek.getDate() - 6);
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const startOfLastWeek = new Date(nowInTz);
-  startOfLastWeek.setDate(startOfLastWeek.getDate() - 13);
-  startOfLastWeek.setHours(0, 0, 0, 0);
-
-  const startOfMonth = new Date(nowInTz);
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
-  const startOfLast30Days = new Date(nowInTz);
-  startOfLast30Days.setDate(startOfLast30Days.getDate() - 29);
-  startOfLast30Days.setHours(0, 0, 0, 0);
-
-  const startOfPrevMonth = new Date(startOfMonth);
-  startOfPrevMonth.setMonth(startOfPrevMonth.getMonth() - 1);
+  const nowUtc = new Date();
+  const startOfWeek = getStartOfDayInTimezone(nowUtc, timeZone, -6);
+  const startOfLastWeek = getStartOfDayInTimezone(nowUtc, timeZone, -13);
+  const startOfMonth = getStartOfMonthInTimezone(nowUtc, timeZone, 0);
+  const startOfPrevMonth = getStartOfMonthInTimezone(nowUtc, timeZone, -1);
+  const startOfLast30Days = getStartOfDayInTimezone(nowUtc, timeZone, -29);
 
   const earliestPrBound =
     startOfPrevMonth.getTime() < startOfLast30Days.getTime()
@@ -405,7 +398,7 @@ export async function CoachOverview() {
   const monthStartMs = startOfMonth.getTime();
   const prevMonthStartMs = startOfPrevMonth.getTime();
   const last30StartMs = startOfLast30Days.getTime();
-  const nowMs = nowInTz.getTime();
+  const nowMs = nowUtc.getTime();
 
   let prEventsThisMonthCount = 0;
   let prEventsPrevMonthCount = 0;

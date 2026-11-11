@@ -188,6 +188,7 @@ export function WorkoutSummaryClient({
         year: "numeric",
         hour: "numeric",
         minute: "2-digit",
+        timeZone: "America/Mexico_City",
       });
     } catch {
       return null;

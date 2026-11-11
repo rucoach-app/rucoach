@@ -301,7 +301,7 @@ export function PhotoUpload({
           view_type: viewType,
           weight_kg: weightKg ? parseFloat(weightKg) : null,
           notes: notes.trim() || null,
-          taken_at: selectedDate,
+          taken_at: `${selectedDate.slice(0, 10)}T12:00:00Z`,
         })
         .select()
         .single()

@@ -10,6 +10,7 @@ import {
   ADMIN_DATA_PAGE_SHELL,
   AdminPageHeader,
 } from "@/components/admin/admin-page-header";
+import { toZonedWallClockDate } from "@/lib/calendar-date";
 
 export default async function AdminDashboard() {
   const { user, role, profile } = await getAuthData();
@@ -20,7 +21,9 @@ export default async function AdminDashboard() {
 
   const coachFirstName =
     profile?.full_name?.split(/\s+/).filter(Boolean)[0] || "Coach";
-  const todayLabel = format(new Date(), "EEEE d MMM", { locale: es });
+  const todayLabel = format(toZonedWallClockDate(new Date()), "EEEE d MMM", {
+    locale: es,
+  });
 
   return (
     <div className="min-h-dvh bg-background">

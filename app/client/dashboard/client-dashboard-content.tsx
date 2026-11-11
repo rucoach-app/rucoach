@@ -121,7 +121,7 @@ export function ClientDashboardContent({
   return (
     <>
       <ClientStackPageHeader
-        kicker={new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' }).toUpperCase()}
+        kicker={new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'America/Mexico_City' }).toUpperCase()}
         title={`¿Listo para el reto, ${userLabel}?`}
         subtitle="Sigue tu plan, supera tus marcas y desbloquea el siguiente nivel."
         backHref={null}

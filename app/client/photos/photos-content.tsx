@@ -31,9 +31,10 @@ import { R2_PUBLIC_URL } from "@/lib/constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { parseRecordedDate } from "@/lib/calendar-date";
 
 function parseTakenDate(dateStr: string): Date {
-  return new Date(dateStr.includes("T") ? dateStr : `${dateStr}T12:00:00`);
+  return parseRecordedDate(dateStr);
 }
 
 export function PhotosContent({

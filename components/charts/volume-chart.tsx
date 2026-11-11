@@ -14,6 +14,7 @@ import {
   monotoneXCurve,
   ruCoachChartTheme,
 } from '@/components/charts/tanstack-chart-utils'
+import { toZonedWallClockDate } from '@/lib/calendar-date'
 
 export type SessionRow = {
   started_at: string
@@ -48,7 +49,7 @@ export function VolumeChart({ sessions }: { sessions: SessionRow[] }) {
           new Date(a.started_at).getTime() - new Date(b.started_at).getTime(),
       )
       .map((s, idx) => {
-        const d = new Date(s.started_at)
+        const d = toZonedWallClockDate(s.started_at)
         return {
           slot: `vol-${idx}`,
           label: format(d, 'dd MMM', { locale: es }),

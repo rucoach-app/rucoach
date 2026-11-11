@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { parseRecordedDate } from '@/lib/calendar-date'
 
 interface PhotoCompareProps {
   photos: ProgressPhoto[]
@@ -58,7 +59,7 @@ function getViewLabel(viewType: string | null | undefined): string {
 }
 
 function parseTakenDate(dateStr: string): Date {
-  return new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00`)
+  return parseRecordedDate(dateStr)
 }
 
 export function PhotoCompare({ photos, onRequestUpload }: PhotoCompareProps) {

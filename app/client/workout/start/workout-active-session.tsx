@@ -767,6 +767,7 @@ export function WorkoutActiveSession({
         routineDayId: routineDay.id,
         sets: allCompletedSets,
         durationMinutes: duration,
+        startedAt: new Date(workoutStartTime).toISOString(),
         rating: feelingScore,
         notes: workoutNote.trim() || undefined,
       });

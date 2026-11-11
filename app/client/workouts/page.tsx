@@ -21,6 +21,7 @@ import {
   ClientStackPageHeader,
 } from "@/components/client/client-app-page-parts";
 import { WorkoutsHistoryDateRangePicker } from "@/components/client/workouts-history-date-range";
+import { formatLocalDateYmd, getNowInTimezone } from "@/lib/calendar-date";
 
 type SearchParams = { from?: string; to?: string };
 
@@ -51,12 +52,12 @@ export default async function ClientWorkoutsPage({
   const sp = await searchParams;
 
   // Rango por defecto: últimos 30 días (si no hay sesiones en 30d pero sí históricas y no hay filtro explícito, ampliamos a 365d)
-  const today = new Date();
+  const today = getNowInTimezone();
   let defaultFromDate = new Date(today);
   defaultFromDate.setDate(today.getDate() - 30);
 
-  let fromIso = sp.from || defaultFromDate.toISOString().split("T")[0];
-  const toIso = sp.to || today.toISOString().split("T")[0];
+  let fromIso = sp.from || formatLocalDateYmd(defaultFromDate);
+  const toIso = sp.to || formatLocalDateYmd(today);
 
   const [initialWorkoutSessions, stats] = await Promise.all([
     getWorkoutSessionsByDateRange(clientRecord.id, fromIso, toIso),
@@ -73,7 +74,7 @@ export default async function ClientWorkoutsPage({
     const yearAgo = new Date(today);
     yearAgo.setDate(today.getDate() - 365);
     defaultFromDate = yearAgo;
-    fromIso = yearAgo.toISOString().split("T")[0];
+    fromIso = formatLocalDateYmd(yearAgo);
     workoutSessions = await getWorkoutSessionsByDateRange(
       clientRecord.id,
       fromIso,

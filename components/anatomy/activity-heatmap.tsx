@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { formatDateKeyInTimezone, toZonedWallClockDate } from "@/lib/calendar-date";
 
 export interface HeatmapSessionEntry {
   started_at: string;
@@ -81,7 +82,7 @@ export function ActivityHeatmap({
     if (!s.started_at) continue;
     const d = new Date(s.started_at);
     if (Number.isNaN(d.getTime())) continue;
-    const key = isoOf(d);
+    const key = formatDateKeyInTimezone(d);
     const entry = (agg[key] = agg[key] || { n: 0, vol: 0, min: 0 });
     entry.n += 1;
     const vol = Number(s.total_volume_kg) || 0;
@@ -119,7 +120,7 @@ export function ActivityHeatmap({
               ? 2
               : 1;
 
-  const today = new Date();
+  const today = toZonedWallClockDate(new Date());
   today.setHours(12, 0, 0, 0);
   const todayKey = isoOf(today);
 

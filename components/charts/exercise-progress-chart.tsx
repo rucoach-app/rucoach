@@ -23,6 +23,7 @@ import {
   monotoneXCurve,
   ruCoachChartTheme,
 } from '@/components/charts/tanstack-chart-utils'
+import { toZonedWallClockDate } from '@/lib/calendar-date'
 
 export type ExercisePoint = {
   achieved_at: string
@@ -88,7 +89,7 @@ export function ExerciseProgressChart({
           new Date(a.achieved_at).getTime() - new Date(b.achieved_at).getTime(),
       )
       .map((p, idx) => {
-        const d = new Date(p.achieved_at)
+        const d = toZonedWallClockDate(p.achieved_at)
         const reps = p.reps ?? null
         return {
           slot: `ex-${idx}`,

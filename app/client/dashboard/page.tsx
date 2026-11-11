@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { calculateLevel, type RoutineDay } from "@/lib/types";
 import { CLIENT_DASHBOARD_SESSIONS_CAP } from "@/lib/performance-limits";
 import { getNextRoutineDay } from "@/lib/next-routine-day";
-import { getNowInTimezone } from "@/lib/calendar-date";
+import { getNowInTimezone, getStartOfMonthInTimezone } from "@/lib/calendar-date";
 import { ClientDashboardContent } from "./client-dashboard-content";
 
 export default async function ClientDashboard() {
@@ -39,10 +39,8 @@ export default async function ClientDashboard() {
   let timeZone = "America/Mexico_City";
 
   // Pre-calculate start of current month (default timezone Mexico City; adjusted if gym settings differ)
-  const nowInTz = getNowInTimezone(timeZone);
-  const startOfMonth = new Date(nowInTz);
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  let nowInTz = getNowInTimezone(timeZone);
+  let startOfMonth = getStartOfMonthInTimezone(new Date(), timeZone);
 
   // Single Parallel Wave: fetch achievements, settings, sessions, active routine with full graph, and PR count
   const [
@@ -107,6 +105,8 @@ export default async function ClientDashboard() {
   const userAchievements = userAchievementsRes.data || [];
   if (gymSettingsRes.data?.timezone && gymSettingsRes.data.timezone !== timeZone) {
     timeZone = gymSettingsRes.data.timezone;
+    nowInTz = getNowInTimezone(timeZone);
+    startOfMonth = getStartOfMonthInTimezone(new Date(), timeZone);
   }
 
   let assignedRoutine: any = null;

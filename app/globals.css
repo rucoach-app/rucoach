@@ -151,33 +151,37 @@ html {
   touch-action: manipulation;
 }
 
-/* Safe area para dispositivos con notch (Mobile-First 2025) */
+/* Safe area para todos los tamaños de iPhone (SE, Mini, Notch, Dynamic Island, Plus, Pro Max) */
 @utility safe-area-pt {
-  padding-top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 @utility safe-area-header-pt {
-  padding-top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 @utility safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @utility safe-area-pl {
-  padding-left: env(safe-area-inset-left);
+  padding-left: env(safe-area-inset-left, 0px);
 }
 @utility safe-area-pr {
-  padding-right: env(safe-area-inset-right);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+@utility safe-area-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 @utility pb-safe-area {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @utility pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @utility safe-area-inset-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 @utility safe-area-inset-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @utility no-scrollbar {
@@ -271,6 +275,11 @@ html {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
   }
+  html {
+    background-color: var(--background);
+    min-height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-size: 16px;
@@ -283,6 +292,31 @@ html {
     -webkit-touch-callout: none;
     overscroll-behavior-y: none;
     text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * iOS / iPadOS Standalone PWA Edge-to-Edge Viewport Fix:
+   * En WebKit standalone con viewport-fit=cover, 100dvh / 100svh resta erróneamente
+   * env(safe-area-inset-bottom) (34px), dejando una franja negra en la barbilla inferior
+   * de los iPhones con Face ID (X, 11, 12, 13, 14, 15, 16, Mini, Plus y Pro Max).
+   * En modo standalone no existe barra de direcciones de Safari, por lo que 100vh
+   * equivale exactamente al alto físico total de la pantalla (ej. 844px en iPhone 13).
+   */
+  @media all and (display-mode: standalone) {
+    html,
+    body {
+      min-height: 100vh !important;
+    }
+    .min-h-dvh,
+    .min-h-svh {
+      min-height: 100vh !important;
+    }
+    .h-dvh {
+      height: 100vh !important;
+    }
+    .max-h-dvh {
+      max-height: 100vh !important;
+    }
   }
 
   /* Prevent selection on UI elements to feel more like an app */

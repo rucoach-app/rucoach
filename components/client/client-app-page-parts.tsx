@@ -36,14 +36,12 @@ export function ClientStackPageHeader({
   return (
     <header
       className={cn(
-        'border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex items-center',
-        // El contenedor de scroll ya reserva la zona segura (notch); el margen negativo hace que el
-        // header sticky nazca pegado arriba, sin salto ni doble espacio al empezar a hacer scroll.
-        sticky && 'sticky top-0 z-50 -mt-[env(safe-area-inset-top)]',
+        'border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
+        sticky && 'sticky top-0 z-50',
         className,
       )}
     >
-      <div className="container flex min-h-[76px] flex-col justify-center gap-3 py-3 sm:min-h-[112px] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0">
+      <div className="container flex min-h-[68px] flex-col justify-center gap-3 py-3 sm:min-h-[104px] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0">
         {/* Leading icon + title always on the same row */}
         <div className="flex min-w-0 items-center gap-4 h-full">
           {/* Back arrow or App logo */}

@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function VerifyOtpPage() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
+    <div className="grid min-h-dvh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 px-6 pt-[max(1.5rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] safe-area-x md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link href="/" className="flex items-center gap-2 font-medium">
             <div className="flex size-8 items-center justify-center rounded-md overflow-hidden">

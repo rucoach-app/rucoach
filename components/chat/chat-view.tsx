@@ -366,18 +366,13 @@ function ThreadPane({
   return (
     <div className="flex w-full min-h-0 flex-1 flex-col relative overflow-hidden">
       {/* ─── Thread header ─── */}
-      <header
-        className={cn(
-          'shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/90 backdrop-blur-xl safe-area-header-pt transition-all',
-          isKeyboardOpen
-            ? 'min-h-[56px] sm:min-h-[112px]'
-            : 'min-h-[72px] sm:min-h-[112px]',
-        )}
-      >
+      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/90 backdrop-blur-xl safe-area-header-pt safe-area-x transition-all">
         <div
           className={cn(
-            'flex items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 h-full w-full',
-            isKeyboardOpen ? 'py-2 sm:py-0' : 'py-3 sm:py-0',
+            'flex items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 w-full',
+            isKeyboardOpen
+              ? 'min-h-[56px] sm:min-h-[104px] py-2 sm:py-0'
+              : 'min-h-[68px] sm:min-h-[104px] py-3 sm:py-0',
           )}
         >
           {/* Leading icon: back chevron only (admin mobile). El cliente ya navega con la barra inferior,
@@ -1037,8 +1032,8 @@ export function ChatView({
     return (
       <div className="flex h-full w-full min-h-0 flex-1 flex-col relative overflow-hidden">
         {/* Consistent AdminPageHeader-style header */}
-        <header className="shrink-0 border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex items-center">
-          <div className="flex items-center gap-4 px-4 py-4 sm:px-6 md:px-8 sm:py-0 w-full">
+        <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+          <div className="flex min-h-[68px] sm:min-h-[104px] items-center gap-4 px-4 py-3 sm:px-6 md:px-8 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">
               <h1 className="text-xl font-black tracking-tight text-pretty sm:text-2xl text-foreground leading-[1.1]">
@@ -1116,8 +1111,8 @@ export function ChatView({
         aria-label="Lista de conversaciones"
       >
         {/* Inbox header — matches AdminPageHeader structure */}
-        <header className="shrink-0 border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex items-center">
-          <div className="flex items-center gap-4 px-4 py-4 sm:px-6 sm:py-0 w-full">
+        <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+          <div className="flex min-h-[68px] sm:min-h-[104px] items-center gap-4 px-4 py-3 sm:px-6 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">
               <h1 className="text-xl font-black tracking-tight text-pretty sm:text-2xl text-foreground leading-[1.1]">

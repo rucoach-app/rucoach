@@ -31,15 +31,13 @@ export function AdminPageHeader({
   return (
     <header
       className={cn(
-        'border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex items-center',
-        // El contenedor de scroll ya reserva la zona segura (notch); el margen negativo hace que el
-        // header sticky nazca pegado arriba, sin salto ni doble espacio al empezar a hacer scroll.
-        sticky && 'sticky top-0 z-50 -mt-[env(safe-area-inset-top)]',
+        'border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
+        sticky && 'sticky top-0 z-50',
         className,
       )}
     >
       {/* Usamos px-4 sm:px-6 md:px-8 en lugar de container para alineación perfecta con el Sidebar */}
-      <div className="w-full h-full flex flex-col gap-4 py-4 md:min-h-[112px] md:flex-row md:items-center md:justify-between md:gap-4 md:py-0 px-4 sm:px-6 md:px-8">
+      <div className="w-full flex min-h-[68px] flex-col justify-center gap-3 py-3 md:min-h-[104px] md:flex-row md:items-center md:justify-between md:gap-4 md:py-0 px-4 sm:px-6 md:px-8">
         <div className="flex min-w-0 items-center gap-4 h-full">
           {/* Leading icon: back arrow or logo */}
           <div className="shrink-0 flex items-center h-full">

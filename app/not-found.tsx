@@ -14,8 +14,8 @@ import { Compass, ArrowLeft } from "lucide-react";
 export default function NotFound() {
   return (
     <div className="min-h-dvh bg-background text-foreground flex flex-col">
-      <header className="h-16 border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container max-w-4xl mx-auto h-full flex items-center justify-between px-4 sm:px-6">
+      <header className="safe-area-header-pt safe-area-x border-b border-border/50 bg-background/85 backdrop-blur-md sticky top-0 z-50">
+        <div className="container max-w-4xl mx-auto h-14 sm:h-16 flex items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3">
             <div className="size-9 rounded-lg overflow-hidden bg-black flex items-center justify-center shrink-0 border border-border/40">
               <Image

@@ -22,7 +22,7 @@ export function AdminLayoutShell({ children }: { children: React.ReactNode }) {
           id="main-content"
           tabIndex={-1}
           className={cn(
-            'flex-1 safe-area-pt pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0',
+            'flex-1 pb-[calc(60px+env(safe-area-inset-bottom,0px))] md:pb-0',
             isMessages ? 'flex min-h-0 flex-col overflow-hidden' : 'overflow-auto',
           )}
         >

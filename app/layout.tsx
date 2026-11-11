@@ -68,7 +68,6 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "RU Coach",
-    startupImage: ["/pwa-screenshot-mobile.png"],
   },
   formatDetection: {
     telephone: false,
@@ -87,7 +86,6 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
@@ -115,6 +113,13 @@ export default function RootLayout({
           {children}
           <Toaster
             position="top-center"
+            offset="max(1rem, env(safe-area-inset-top, 1rem))"
+            mobileOffset={{
+              top: "max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))",
+              bottom: "max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))",
+              left: "max(1rem, env(safe-area-inset-left, 1rem))",
+              right: "max(1rem, env(safe-area-inset-right, 1rem))",
+            }}
             toastOptions={{
               style: {
                 background: "var(--card)",

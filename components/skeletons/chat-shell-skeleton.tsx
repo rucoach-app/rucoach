@@ -12,8 +12,8 @@ function InboxAsideSkeleton() {
       aria-hidden
     >
       {/* Header — matches InboxAside header */}
-      <header className="shrink-0 border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex flex-col justify-center">
-        <div className="flex flex-col gap-3 px-4 py-3 sm:px-6">
+      <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex flex-col justify-center">
+        <div className="flex min-h-[68px] sm:min-h-[104px] flex-col justify-center gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Skeleton className="size-11 shrink-0 rounded-xl md:hidden" />
             <Skeleton className="h-7 w-32 rounded-xl" />
@@ -63,8 +63,8 @@ function ThreadPaneSkeleton({ role }: { role: 'admin' | 'client' }) {
       aria-label="Cargando chat"
     >
       {/* Thread header — matches ThreadPane header */}
-      <header className="shrink-0 border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex items-center">
-        <div className="w-full flex flex-row items-center gap-4 px-4 sm:px-6 md:px-8">
+      <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+        <div className="w-full min-h-[68px] sm:min-h-[104px] flex flex-row items-center gap-4 px-4 py-3 sm:py-0 sm:px-6 md:px-8">
           {/* For client on mobile: show mobile brand logo placeholder */}
           {!isAdmin && <Skeleton className="size-11 shrink-0 rounded-xl md:hidden" />}
 

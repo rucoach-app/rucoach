@@ -452,8 +452,8 @@ export function OnboardingFlow({
   return (
     <div className="min-h-dvh bg-background flex flex-col font-sans selection:bg-primary/20 overflow-x-hidden">
       {/* Unified Header */}
-      <header className="h-14 sm:h-16 border-b border-border/50 bg-background/85 backdrop-blur-md sticky top-0 z-50">
-        <div className="container max-w-4xl mx-auto h-full flex items-center justify-between px-3.5 sm:px-6">
+      <header className="safe-area-header-pt safe-area-x border-b border-border/50 bg-background/85 backdrop-blur-md sticky top-0 z-50">
+        <div className="container max-w-4xl mx-auto h-14 sm:h-16 flex items-center justify-between px-3.5 sm:px-6">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="size-8 sm:size-9 rounded-lg overflow-hidden bg-black flex items-center justify-center shrink-0 border border-border/40">
               <Image
@@ -483,7 +483,7 @@ export function OnboardingFlow({
       </header>
 
       {/* Modern Top Stepper Progress */}
-      <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 py-2.5 sm:py-3.5 sticky top-14 sm:top-16 z-40">
+      <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 py-2.5 sm:py-3.5 sticky top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] z-40 safe-area-x">
         <div className="container max-w-4xl mx-auto px-2.5 sm:px-4">
           <div className="flex items-start justify-between max-w-xl mx-auto w-full">
             {STEPS.map((step, index) => {

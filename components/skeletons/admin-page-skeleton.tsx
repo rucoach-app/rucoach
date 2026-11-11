@@ -25,12 +25,12 @@ export function AdminPageHeaderSkeleton({
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 -mt-[env(safe-area-inset-top)] border-b border-border/50 bg-background/80 backdrop-blur-xl safe-area-header-pt min-h-[76px] sm:min-h-[112px] flex items-center',
+        'sticky top-0 z-50 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
         className,
       )}
       aria-hidden
     >
-      <div className="w-full h-full flex flex-col gap-4 py-4 md:min-h-[112px] md:flex-row md:items-center md:justify-between md:gap-4 md:py-0 px-4 sm:px-6 md:px-8">
+      <div className="w-full flex min-h-[68px] flex-col justify-center gap-3 py-3 md:min-h-[104px] md:flex-row md:items-center md:justify-between md:gap-4 md:py-0 px-4 sm:px-6 md:px-8">
         <div className="flex min-w-0 items-center gap-4 h-full">
           <div className={cn('shrink-0 flex items-center h-full', !hasBackButton && 'md:hidden')}>
             {hasBackButton ? (
@@ -151,8 +151,8 @@ export function AdminFormPageSkeleton() {
 export function OnboardingFlowSkeleton({ steps = 4 }: { steps?: number }) {
   return (
     <div className="min-h-dvh bg-background flex flex-col" aria-busy="true" aria-label="Cargando configuración inicial">
-      <header className="h-16 border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container max-w-4xl mx-auto h-full flex items-center justify-between px-4 sm:px-6">
+      <header className="safe-area-header-pt safe-area-x border-b border-border/50 bg-background/85 backdrop-blur-md sticky top-0 z-50">
+        <div className="container max-w-4xl mx-auto h-14 sm:h-16 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <Skeleton className="size-9 rounded-lg shrink-0" />
             <div className="space-y-1">

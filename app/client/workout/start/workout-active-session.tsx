@@ -961,7 +961,7 @@ export function WorkoutActiveSession({
   return (
     <div className="flex min-h-dvh flex-col overflow-x-clip bg-background">
       {/* Compact Sticky Workout Header (Single Row on Mobile & Desktop + Live Progress Bar) */}
-      <header className="sticky top-0 z-40 -mt-[env(safe-area-inset-top)] border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt">
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x">
         <div className="container mx-auto flex min-h-[64px] max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:min-h-[84px] sm:gap-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3.5">
             <Button
@@ -1125,7 +1125,7 @@ export function WorkoutActiveSession({
           <button
             type="button"
             onClick={() => setIsRestMinimized(true)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/80 px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
+            className="absolute top-[max(1rem,calc(env(safe-area-inset-top,0px)+0.5rem))] right-[max(1rem,env(safe-area-inset-right,1rem))] sm:top-6 sm:right-6 z-20 flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/80 px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
             aria-label="Minimizar temporizador de descanso"
           >
             <Minimize2 className="size-3.5" />
@@ -1257,7 +1257,7 @@ export function WorkoutActiveSession({
 
       {/* Floating Minimized Rest Bar */}
       {isResting && isRestMinimized && (
-        <div className="fixed bottom-4 inset-x-3 sm:inset-x-6 max-w-md mx-auto z-50 flex items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-card/95 p-3 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-[max(1rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] inset-x-3 sm:inset-x-6 max-w-md mx-auto z-50 flex items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-card/95 p-3 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-300">
           <button
             type="button"
             onClick={() => setIsRestMinimized(false)}

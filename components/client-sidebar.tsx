@@ -108,8 +108,8 @@ export function ClientSidebar() {
 
   return (
     <Sidebar side="left" collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border/50 flex flex-row items-center px-4 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center shrink-0 bg-sidebar/50 backdrop-blur-xl min-h-[76px] sm:min-h-[112px] safe-area-header-pt">
-        <div className="flex items-center justify-between w-full gap-3 group-data-[collapsible=icon]:justify-center h-full">
+      <SidebarHeader className="border-b border-sidebar-border/50 flex flex-row items-center px-4 py-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center shrink-0 bg-sidebar/50 backdrop-blur-xl safe-area-header-pt">
+        <div className="flex items-center justify-between w-full gap-3 group-data-[collapsible=icon]:justify-center min-h-[68px] sm:min-h-[104px] py-3">
           <Link
             href="/client/dashboard"
             onClick={handleNavClick}
@@ -178,7 +178,7 @@ export function ClientSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/50 shrink-0 bg-sidebar/50 backdrop-blur-xl p-3 flex flex-col justify-center">
+      <SidebarFooter className="border-t border-sidebar-border/50 shrink-0 bg-sidebar/50 backdrop-blur-xl px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] flex flex-col justify-center">
         <SidebarMenu>
           {mounted && !standalone && (
             <SidebarMenuItem>

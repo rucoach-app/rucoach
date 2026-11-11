@@ -28,10 +28,10 @@ export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
           tabIndex={-1}
           className={
             isMessagesRoute
-              ? 'flex min-h-0 flex-1 flex-col overflow-hidden safe-area-pt pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0'
+              ? 'flex min-h-0 flex-1 flex-col overflow-hidden pb-[calc(60px+env(safe-area-inset-bottom,0px))] md:pb-0'
               : isActiveWorkoutRoute
-                ? 'flex-1 overflow-auto safe-area-pt pb-[env(safe-area-inset-bottom)] md:pb-0'
-                : 'flex-1 overflow-auto safe-area-pt pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0'
+                ? 'flex-1 overflow-auto pb-[env(safe-area-inset-bottom,0px)] md:pb-0'
+                : 'flex-1 overflow-auto pb-[calc(60px+env(safe-area-inset-bottom,0px))] md:pb-0'
           }
         >
           {children}

@@ -4,7 +4,7 @@ import { AdminPageHeaderSkeleton } from './admin-page-skeleton'
 
 export function AdminSettingsSkeleton() {
   return (
-    <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Cargando configuración">
+    <div className="min-h-full bg-background" aria-busy="true" aria-label="Cargando configuración">
       <AdminPageHeaderSkeleton />
 
       <div className={`${ADMIN_DATA_PAGE_SHELL} space-y-8`}>

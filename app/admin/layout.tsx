@@ -25,7 +25,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
       <AdminLayoutShell>{children}</AdminLayoutShell>
     </div>
   );

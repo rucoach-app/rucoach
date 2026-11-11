@@ -3,7 +3,7 @@ import { AdminPageHeaderSkeleton, TableSkeleton } from "@/components/skeletons";
 
 export default function UsersLoading() {
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeaderSkeleton />
 
       <div className={ADMIN_DATA_PAGE_SHELL}>

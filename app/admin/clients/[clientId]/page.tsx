@@ -206,7 +206,7 @@ export default async function ClientProfilePage({
   };
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title={client.full_name}
         backHref="/admin/clients"

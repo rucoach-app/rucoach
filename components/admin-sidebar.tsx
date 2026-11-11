@@ -107,7 +107,11 @@ export function AdminSidebar() {
 
   return (
     <Sidebar side="left" collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border/50 flex flex-row items-center px-4 pt-[env(safe-area-inset-top,0px)] pb-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center shrink-0 bg-sidebar/95 backdrop-blur-xl">
+      <div
+        aria-hidden="true"
+        className="ios-status-bar-cap h-[env(safe-area-inset-top,0px)] w-full shrink-0 bg-sidebar/95"
+      />
+      <SidebarHeader className="border-b border-sidebar-border/50 flex flex-row items-center px-4 py-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center shrink-0 bg-sidebar/95 backdrop-blur-xl">
         <div className="flex items-center justify-between w-full gap-3 group-data-[collapsible=icon]:justify-center min-h-[54px] sm:min-h-[96px] py-2 sm:py-0">
           <Link
             href="/admin/dashboard"

@@ -7,7 +7,7 @@ import { AdminPageHeaderSkeleton } from './admin-page-skeleton'
 /** Mirrors `ClientProfileHub` + `app/admin/clients/[clientId]/page.tsx` shell. */
 export function AdminClientProfileSkeleton() {
   return (
-    <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Cargando perfil del asesorado">
+    <div className="min-h-full bg-background" aria-busy="true" aria-label="Cargando perfil del asesorado">
       <AdminPageHeaderSkeleton
         hasBackButton
         actions={

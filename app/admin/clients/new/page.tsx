@@ -12,7 +12,7 @@ export default async function NewClientPage() {
   if (!user) redirect("/auth/login");
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title="Nuevo asesorado"
         description="Agrega un nuevo asesorado a tu lista"

@@ -43,7 +43,7 @@ export default async function NewPaymentPage({
   ]);
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title="Registrar Nuevo Pago"
         description="Registra un cobro o cargo pendiente y actualiza automáticamente la vigencia del asesorado"

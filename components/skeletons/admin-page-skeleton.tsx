@@ -25,7 +25,7 @@ export function AdminPageHeaderSkeleton({
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
+        'sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center',
         className,
       )}
       aria-hidden
@@ -62,7 +62,7 @@ export function AdminPageHeaderSkeleton({
  */
 export function AdminPageSkeleton() {
   return (
-    <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Cargando">
+    <div className="min-h-full bg-background" aria-busy="true" aria-label="Cargando">
       <AdminPageHeaderSkeleton />
 
       <div className={ADMIN_DATA_PAGE_SHELL}>
@@ -96,7 +96,7 @@ export function AdminPageSkeleton() {
  */
 export function AdminFormPageSkeleton() {
   return (
-    <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Cargando formulario">
+    <div className="min-h-full bg-background" aria-busy="true" aria-label="Cargando formulario">
       <AdminPageHeaderSkeleton hasBackButton />
 
       <div className={ADMIN_FORM_PAGE_SHELL}>

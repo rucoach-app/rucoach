@@ -26,7 +26,7 @@ export default async function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         className="bg-background/90 backdrop-blur-md"

@@ -32,7 +32,7 @@ export default async function EditPaymentPage({
   if (!payment) notFound();
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         title="Editar pago"

@@ -209,7 +209,7 @@ export default async function RoutineDetailsPage({ params }: Props) {
   const goalDisplay = getGoalLabel(routine.goal);
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title={routine.name}
         backHref="/admin/routines"

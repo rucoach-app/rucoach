@@ -361,6 +361,8 @@ html {
  * overrides so `@layer utilities` `.min-h-0!` retains precedence over `SidebarProvider`'s `min-h-dvh`).
  * En WebKit standalone con viewport-fit=cover, 100dvh / 100svh resta erróneamente
  * env(safe-area-inset-bottom) (34px), dejando una franja negra inferior en iPhones Face ID.
+ * Además, con apple-mobile-web-app-status-bar-style="black-translucent", iOS siempre dibuja texto
+ * blanco en la barra de estado, por lo que .ios-status-bar-cap mantiene fondo oscuro incluso en Tema Claro.
  */
 @media all and (display-mode: standalone) {
   html,
@@ -376,6 +378,9 @@ html {
   }
   .max-h-dvh {
     max-height: 100vh;
+  }
+  html:not(.dark) .ios-status-bar-cap {
+    background-color: oklch(0.141 0.005 285.823);
   }
 }
 

@@ -30,7 +30,7 @@ export default async function EditClientPage({ params }: Props) {
   if (error || !client) redirect("/admin/clients");
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title="Editar asesorado"
         description={client.full_name}

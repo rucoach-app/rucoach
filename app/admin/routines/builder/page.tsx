@@ -12,7 +12,7 @@ export default async function BuilderPage() {
   if (role !== "admin") redirect("/client/dashboard");
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         title="Constructor de rutinas"

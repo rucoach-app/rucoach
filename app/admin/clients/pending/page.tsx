@@ -115,7 +115,7 @@ export default function PendingClientsPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title="Clientes pendientes"
         description="Aprueba o rechaza nuevas solicitudes"

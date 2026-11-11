@@ -24,14 +24,18 @@ export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
       <ClientSidebar />
       <SidebarInset className="min-h-0 flex-1 overflow-hidden">
         <div
+          aria-hidden="true"
+          className="ios-status-bar-cap h-[env(safe-area-inset-top,0px)] w-full shrink-0 bg-background"
+        />
+        <div
           id="main-content"
           tabIndex={-1}
           className={
             isMessagesRoute
               ? 'flex min-h-0 flex-1 flex-col overflow-hidden pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0'
               : isActiveWorkoutRoute
-                ? 'min-h-0 flex-1 overflow-auto overscroll-y-contain scroll-pt-[calc(4.5rem+env(safe-area-inset-top,0px))] md:scroll-pt-[calc(6rem+1rem)] pb-[env(safe-area-inset-bottom,0px)] md:pb-0'
-                : 'min-h-0 flex-1 overflow-auto overscroll-y-contain scroll-pt-[calc(4.5rem+env(safe-area-inset-top,0px))] md:scroll-pt-[calc(6rem+1rem)] pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0'
+                ? 'min-h-0 flex-1 overflow-auto overscroll-y-contain scroll-pt-[4.5rem] sm:scroll-pt-[calc(6rem+1rem)] pb-[env(safe-area-inset-bottom,0px)] md:pb-0'
+                : 'min-h-0 flex-1 overflow-auto overscroll-y-contain scroll-pt-[4.5rem] sm:scroll-pt-[calc(6rem+1rem)] pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0'
           }
         >
           {children}

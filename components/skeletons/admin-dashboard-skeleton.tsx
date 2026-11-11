@@ -20,7 +20,7 @@ function KpiTileSkeleton() {
 
 export function AdminDashboardSkeleton() {
   return (
-    <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Cargando panel de control">
+    <div className="min-h-full bg-background" aria-busy="true" aria-label="Cargando panel de control">
       <AdminPageHeaderSkeleton
         hasKicker
         actions={

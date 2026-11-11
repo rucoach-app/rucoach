@@ -3,7 +3,7 @@ import { AdminPageHeaderSkeleton, RoutineBuilderContentSkeleton } from "@/compon
 
 export default function RoutineBuilderLoading() {
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeaderSkeleton hasBackButton />
       <div className={ADMIN_DATA_PAGE_SHELL}>
         <RoutineBuilderContentSkeleton />

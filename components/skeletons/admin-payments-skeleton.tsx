@@ -20,7 +20,7 @@ function KpiTileSkeleton() {
 
 export function AdminPaymentsSkeleton() {
   return (
-    <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Cargando pagos y membresías">
+    <div className="min-h-full bg-background" aria-busy="true" aria-label="Cargando pagos y membresías">
       <AdminPageHeaderSkeleton
         actions={<Skeleton className="h-10 w-full sm:w-36 rounded-xl" />}
       />

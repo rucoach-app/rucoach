@@ -366,7 +366,7 @@ function ThreadPane({
   return (
     <div className="flex w-full min-h-0 flex-1 flex-col relative overflow-hidden">
       {/* ─── Thread header ─── */}
-      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x transition-all">
+      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x transition-all">
         <div
           className={cn(
             'flex items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 w-full',
@@ -624,6 +624,7 @@ export function ChatView({
     null,
   )
 
+  const chatRootRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -702,17 +703,25 @@ export function ChatView({
         return
       }
 
-      const vvHeight = vv ? Math.round(vv.height) : window.innerHeight
-      const heightDiff = window.innerHeight - vvHeight
+      const vvTop = vv ? vv.offsetTop : 0
+      const vvRawHeight = vv ? vv.height : window.innerHeight
+      const heightDiff = window.innerHeight - Math.round(vvRawHeight)
       const keyboardActive = heightDiff > 110 || isInputFocused
 
       setIsKeyboardOpen(keyboardActive)
       if (keyboardActive) {
         document.documentElement.dataset.chatKeyboardOpen = 'true'
-        setMobileViewportHeight(vvHeight)
         if (window.scrollY !== 0) {
           window.scrollTo(0, 0)
         }
+        const rootTop = chatRootRef.current
+          ? Math.max(0, chatRootRef.current.getBoundingClientRect().top)
+          : 0
+        const availableHeight = Math.max(
+          240,
+          Math.round(vvTop + vvRawHeight - rootTop),
+        )
+        setMobileViewportHeight(availableHeight)
         requestAnimationFrame(() => scrollToEnd(false))
       } else {
         delete document.documentElement.dataset.chatKeyboardOpen
@@ -1030,9 +1039,12 @@ export function ChatView({
   /* ── Admin with zero conversations ── */
   if (isAdmin && conversationsState.length === 0) {
     return (
-      <div className="flex h-full w-full min-h-0 flex-1 flex-col relative overflow-hidden">
+      <div
+        ref={chatRootRef}
+        className="flex h-full w-full min-h-0 flex-1 flex-col relative overflow-hidden"
+      >
         {/* Consistent AdminPageHeader-style header */}
-        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center">
           <div className="flex min-h-[54px] sm:min-h-[96px] items-center gap-3 sm:gap-4 px-4 py-2 sm:px-6 md:px-8 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">
@@ -1069,6 +1081,7 @@ export function ChatView({
   if (!isAdmin && peer) {
     return (
       <div
+        ref={chatRootRef}
         style={mobileContainerStyle}
         className="flex h-full w-full min-h-0 flex-1 flex-col bg-background overflow-hidden"
       >
@@ -1099,6 +1112,7 @@ export function ChatView({
   /* ── Admin layout: inbox sidebar + thread pane ── */
   return (
     <div
+      ref={chatRootRef}
       style={mobileContainerStyle}
       className="flex h-full w-full min-h-0 flex-1 bg-background overflow-hidden"
     >
@@ -1111,7 +1125,7 @@ export function ChatView({
         aria-label="Lista de conversaciones"
       >
         {/* Inbox header — matches AdminPageHeader structure */}
-        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center">
           <div className="flex min-h-[54px] sm:min-h-[96px] items-center gap-3 sm:gap-4 px-4 py-2 sm:px-6 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">

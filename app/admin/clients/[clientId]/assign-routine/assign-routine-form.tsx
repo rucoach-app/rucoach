@@ -59,7 +59,7 @@ export function AssignRoutineForm({ clientId, clientName, routines }: Props) {
   };
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title="Asignar rutina"
         description={clientName}

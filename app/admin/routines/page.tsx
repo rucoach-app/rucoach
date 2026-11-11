@@ -154,7 +154,7 @@ export default async function AdminRoutinesPage() {
       : 0;
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         title="Rutinas de Entrenamiento"

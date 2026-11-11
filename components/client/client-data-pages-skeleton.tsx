@@ -22,7 +22,7 @@ export function ClientStackPageHeaderSkeleton({
 }: ClientStackPageHeaderSkeletonProps = {}) {
   return (
     <header
-      className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center"
+      className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center"
       aria-hidden
     >
       <div className="container flex min-h-[54px] flex-col justify-center gap-2 py-2 sm:min-h-[96px] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0">

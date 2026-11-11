@@ -229,7 +229,7 @@ export default async function AdminPaymentsPage() {
   ];
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         title="Pagos y Membresías"

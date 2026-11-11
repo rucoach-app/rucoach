@@ -126,7 +126,7 @@ export default async function EditRoutinePage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         title="Editar rutina"

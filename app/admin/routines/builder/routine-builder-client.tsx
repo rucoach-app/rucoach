@@ -1387,7 +1387,7 @@ export function RoutineBuilderClient({
 
       <div
         className={cn(
-          "fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] md:bottom-0 z-40 border-t border-border bg-background/95",
+          "fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom,0px))] md:bottom-0 z-40 border-t border-border bg-background/95",
           "backdrop-blur-md shadow-[0_-4px_16px_rgba(0,0,0,0.05)]",
           "px-4 py-3 sm:px-6",
           "md:static md:z-auto md:border-0 md:bg-transparent md:shadow-none md:px-0 md:py-0 md:backdrop-blur-none",

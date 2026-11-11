@@ -106,7 +106,7 @@ export default async function AdminExercisesPage({
   ].sort();
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         sticky
         title="Catálogo de ejercicios"

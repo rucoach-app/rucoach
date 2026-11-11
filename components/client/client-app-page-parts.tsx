@@ -36,7 +36,7 @@ export function ClientStackPageHeader({
   return (
     <header
       className={cn(
-        'border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
+        'border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center',
         sticky && 'sticky top-0 z-50',
         className,
       )}

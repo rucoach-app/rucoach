@@ -55,7 +55,7 @@ export default async function EditExercisePage({
       : "/admin/exercises";
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title={`Editar · ${exName(exercise)}`}
         description="Modifica los pasos de ejecución por puntos, notas técnicas, músculos o multimedia."

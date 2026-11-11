@@ -27,7 +27,7 @@ export default async function NewExercisePage() {
   if (profile?.role !== "admin") redirect("/client/dashboard");
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-full bg-background">
       <AdminPageHeader
         title="Nuevo ejercicio"
         description="Se guardará en el catálogo y estará disponible en el constructor de rutinas."

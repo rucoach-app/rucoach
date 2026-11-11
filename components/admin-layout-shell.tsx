@@ -14,16 +14,18 @@ export function AdminLayoutShell({ children }: { children: React.ReactNode }) {
   const isMessages = pathname.includes('/messages')
 
   return (
-    <SidebarProvider defaultOpen={true} className="flex-1 min-h-0">
+    <SidebarProvider defaultOpen={true} className="flex-1 h-full min-h-0! overflow-hidden">
       <RealtimeNotifications role="admin" />
       <AdminSidebar />
-      <SidebarInset className={cn(isMessages && 'flex-1 min-h-0')}>
+      <SidebarInset className="min-h-0 flex-1 overflow-hidden">
         <div
           id="main-content"
           tabIndex={-1}
           className={cn(
-            'flex-1 pb-[calc(60px+env(safe-area-inset-bottom,0px))] md:pb-0',
-            isMessages ? 'flex min-h-0 flex-col overflow-hidden' : 'overflow-auto',
+            'min-h-0 flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0',
+            isMessages
+              ? 'flex flex-col overflow-hidden'
+              : 'overflow-auto overscroll-y-contain scroll-pt-[calc(4.5rem+env(safe-area-inset-top,0px))] md:scroll-pt-[calc(6rem+1rem)]',
           )}
         >
           {children}

@@ -1261,11 +1261,14 @@ export function ClientProfileHub({
                   sessions={(workoutSessions || [])
                     .filter((s) => !s.status || s.status === "completed")
                     .map((s) => ({
-                      started_at: (s.started_at ?? s.created_at ?? "") as string,
-                      total_volume_kg: Number(s.total_volume_kg) || 0,
-                      duration_seconds: s.duration_minutes
-                        ? Number(s.duration_minutes) * 60
-                        : null,
+                      started_at: (s.started_at ?? s.finished_at ?? s.created_at ?? "") as string,
+                      total_volume_kg: Number.isFinite(Number(s.total_volume_kg))
+                        ? Number(s.total_volume_kg)
+                        : 0,
+                      duration_minutes:
+                        s.duration_minutes != null && Number.isFinite(Number(s.duration_minutes))
+                          ? Number(s.duration_minutes)
+                          : null,
                     }))}
                 />
               </CardContent>

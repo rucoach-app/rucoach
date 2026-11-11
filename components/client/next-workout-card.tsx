@@ -107,8 +107,8 @@ export function NextWorkoutCard({
   return (
     <>
       <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl bg-card/60 backdrop-blur-sm transition-all hover:bg-card">
-        <CardHeader className="pb-5 pt-7 px-5 sm:px-8">
-          <div className="flex flex-col gap-4">
+        <CardHeader className="pb-3.5 pt-4 px-4 sm:pb-5 sm:pt-7 sm:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4">
             {/* Top row: Status kicker + Routine & Week badges */}
             <div className="flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex items-center gap-2">
@@ -161,32 +161,32 @@ export function NextWorkoutCard({
           </div>
         </CardHeader>
 
-        <CardContent className="px-5 sm:px-8 pb-7 flex flex-col gap-6">
+        <CardContent className="px-4 sm:px-8 pb-5 sm:pb-7 flex flex-col gap-4 sm:gap-6">
           {/* Quick stats grid with balanced circular icons */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <div className="flex items-center gap-2.5 sm:gap-3.5 p-3 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30">
-              <div className="size-9 sm:size-11 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
-                <Dumbbell className="size-4.5 sm:size-5 text-primary" strokeWidth={2.2} />
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3.5 p-2.5 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30 min-w-0">
+              <div className="size-8 sm:size-11 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                <Dumbbell className="size-4 sm:size-5 text-primary" strokeWidth={2.2} />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-xl sm:text-2xl font-black tabular-nums leading-none tracking-tight text-foreground">
+                <span className="text-lg sm:text-2xl font-black tabular-nums leading-none tracking-tight text-foreground">
                   {exerciseCount}
                 </span>
-                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-1 whitespace-nowrap">
+                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-0.5 sm:mt-1 leading-tight">
                   Ejercicios
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 sm:gap-3.5 p-3 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30">
-              <div className="size-9 sm:size-11 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
-                <Clock className="size-4.5 sm:size-5 text-primary" strokeWidth={2.2} />
+            <div className="flex items-center gap-2 sm:gap-3.5 p-2.5 sm:p-4 rounded-2xl bg-muted/15 border border-border/50 transition-colors hover:border-primary/30 min-w-0">
+              <div className="size-8 sm:size-11 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                <Clock className="size-4 sm:size-5 text-primary" strokeWidth={2.2} />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-xl sm:text-2xl font-black tabular-nums leading-none tracking-tight text-foreground">
+                <span className="text-lg sm:text-2xl font-black tabular-nums leading-none tracking-tight text-foreground">
                   {estimatedTime}
                 </span>
-                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-1 whitespace-nowrap">
+                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-0.5 sm:mt-1 leading-tight">
                   Min aprox.
                 </span>
               </div>
@@ -195,18 +195,18 @@ export function NextWorkoutCard({
 
           {/* Exercise preview with 2-line wraps and clean circular numbers */}
           {routineDay.routine_exercises && routineDay.routine_exercises.length > 0 && (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5 sm:gap-3">
               <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">
                 Contenido de la sesión
               </span>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2 sm:gap-2.5">
                 {routineDay.routine_exercises.slice(0, 3).map((ex, i) => (
                   <div
                     key={ex.id}
-                    className="group flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl border border-border/50 bg-background/50 transition-all hover:bg-background hover:border-primary/25 hover:shadow-xs"
+                    className="group flex items-center justify-between gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl border border-border/50 bg-background/50 transition-all hover:bg-background hover:border-primary/25 hover:shadow-xs"
                   >
-                    <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-3.5">
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted/60 text-xs font-black text-foreground/80 border border-border/50 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+                    <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3.5">
+                      <span className="flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full bg-muted/60 text-xs font-black text-foreground/80 border border-border/50 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
                         {i + 1}
                       </span>
                       <span className="line-clamp-2 text-xs sm:text-sm font-bold tracking-tight text-foreground leading-snug group-hover:text-primary transition-colors">
@@ -234,10 +234,10 @@ export function NextWorkoutCard({
           )}
 
           {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-1">
+          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-1">
             <Button
               asChild
-              className="h-14 flex-1 text-sm sm:text-base font-black uppercase tracking-[0.12em] rounded-2xl shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:translate-y-[-1px] active:translate-y-[0] active:scale-[0.98] group"
+              className="h-12 sm:h-14 flex-1 text-sm sm:text-base font-black uppercase tracking-[0.12em] rounded-2xl shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:translate-y-[-1px] active:translate-y-[0] active:scale-[0.98] group"
             >
               <Link href="/client/workout/start">
                 <Play className="size-5 mr-2.5 fill-current shrink-0 group-hover:scale-110 transition-transform duration-200" />
@@ -251,7 +251,7 @@ export function NextWorkoutCard({
                 type="button"
                 variant="outline"
                 onClick={() => setScheduleDialogOpen(true)}
-                className="h-14 sm:w-auto px-5 text-xs font-black uppercase tracking-wider rounded-2xl border-border/60 bg-background/50 hover:bg-background hover:border-primary/30 transition-all gap-2"
+                className="h-12 sm:h-14 sm:w-auto px-5 text-xs font-black uppercase tracking-wider rounded-2xl border-border/60 bg-background/50 hover:bg-background hover:border-primary/30 transition-all gap-2"
               >
                 <CalendarDays className="size-4 text-primary" />
                 Cambiar día
@@ -260,7 +260,7 @@ export function NextWorkoutCard({
               <Button
                 asChild
                 variant="outline"
-                className="h-14 sm:w-auto px-5 text-xs font-black uppercase tracking-wider rounded-2xl border-border/60 bg-background/50 hover:bg-background hover:border-primary/30 transition-all"
+                className="h-12 sm:h-14 sm:w-auto px-5 text-xs font-black uppercase tracking-wider rounded-2xl border-border/60 bg-background/50 hover:bg-background hover:border-primary/30 transition-all"
               >
                 <Link href="/client/routines">
                   Ver rutina completa

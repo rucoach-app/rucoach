@@ -103,7 +103,7 @@ export default async function ClientProfilePage({
   ] = await Promise.all([
     planPromise,
     profilePromise,
-    getWorkoutSessions(clientId, 60),
+    getWorkoutSessions(clientId, 365),
     supabase
       .from("body_measurements")
       .select(

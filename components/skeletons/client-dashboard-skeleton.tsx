@@ -21,11 +21,11 @@ export function ClientDashboardSkeleton() {
     <>
       <ClientStackPageHeaderSkeleton withKicker />
       <div
-        className={`${CLIENT_DATA_PAGE_SHELL} grid gap-8 lg:grid-cols-12 pb-safe-area`}
+        className={`${CLIENT_DATA_PAGE_SHELL} grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-12`}
         aria-busy="true"
         aria-label="Cargando panel"
       >
-        <aside className="flex flex-col gap-8 lg:col-span-12 xl:col-span-4 xl:sticky xl:top-[calc(112px+1.5rem)] xl:self-start">
+        <aside className="flex flex-col gap-4 sm:gap-6 lg:gap-8 lg:col-span-12 xl:col-span-4 xl:sticky xl:top-[calc(96px+1.5rem)] xl:self-start">
           {/* Level Progress Skeleton */}
           <Card className="overflow-hidden border-border/80 shadow-md rounded-3xl bg-card/60 backdrop-blur-sm">
             <CardContent className="p-5 sm:p-6">
@@ -48,7 +48,7 @@ export function ClientDashboardSkeleton() {
           </div>
         </aside>
 
-        <section className="flex min-w-0 flex-col gap-8 lg:col-span-12 xl:col-span-8">
+        <section className="flex min-w-0 flex-col gap-4 sm:gap-6 lg:gap-8 lg:col-span-12 xl:col-span-8">
           {/* Analysis Chart Skeleton */}
           <Card className="overflow-hidden border-border/80 shadow-md rounded-3xl bg-card/60 backdrop-blur-sm">
             <CardHeader className="pb-2 pt-6 px-5 sm:px-8">

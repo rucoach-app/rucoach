@@ -57,7 +57,7 @@ export default async function ReceptionistCheckInPage({
         id,
         client_id,
         started_at,
-        completed_at,
+        finished_at,
         clients (
           full_name
         )

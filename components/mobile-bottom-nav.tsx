@@ -54,7 +54,7 @@ export function MobileBottomNav({ type }: { type: 'client' | 'admin' }) {
       data-mobile-bottom-nav="true"
       className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-card/95 backdrop-blur-xl border-t border-border/60 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.4)] safe-area-pb safe-area-x"
     >
-      <ul className="flex justify-around items-center h-[60px] px-1 sm:px-2">
+      <ul className="flex justify-around items-center h-[56px] px-1 sm:px-2">
         {items.map((item) => {
           const isActive = activeHref === item.href
           const Icon = item.icon
@@ -66,16 +66,16 @@ export function MobileBottomNav({ type }: { type: 'client' | 'admin' }) {
                 onTouchStart={() => handleWarmupRoute(item.href)}
                 onPointerEnter={() => handleWarmupRoute(item.href)}
                 className={cn(
-                  "flex flex-col items-center justify-center w-full h-full gap-1 min-w-[44px] transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 rounded-full py-1",
+                  "flex flex-col items-center justify-center w-full h-full gap-0.5 min-w-[44px] min-h-[44px] transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 rounded-xl py-0.5",
                   isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
                 <div className={cn(
-                  "flex size-8 items-center justify-center rounded-full transition-all duration-200",
+                  "flex size-7 items-center justify-center rounded-full transition-all duration-200",
                   isActive ? "bg-primary/15 text-primary scale-105 shadow-xs" : "bg-transparent text-muted-foreground scale-100"
                 )}>
-                  <Icon className="size-5 shrink-0" strokeWidth={isActive ? 2.4 : 2} />
+                  <Icon className="size-[19px] shrink-0" strokeWidth={isActive ? 2.4 : 2} />
                 </div>
                 <span className={cn(
                   "text-[10px] tracking-tight truncate px-0.5 leading-none transition-colors",
@@ -91,11 +91,11 @@ export function MobileBottomNav({ type }: { type: 'client' | 'admin' }) {
           <button
             type="button"
             onClick={() => setOpenMobile(true)}
-            className="flex flex-col items-center justify-center w-full h-full gap-1 min-w-[44px] text-muted-foreground hover:text-foreground transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 rounded-full py-1"
+            className="flex flex-col items-center justify-center w-full h-full gap-0.5 min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 rounded-xl py-0.5"
             aria-label="Abrir menú"
           >
-            <div className="flex size-8 items-center justify-center rounded-full transition-all duration-200 bg-transparent text-muted-foreground scale-100">
-              <Menu className="size-5 shrink-0" strokeWidth={2} />
+            <div className="flex size-7 items-center justify-center rounded-full transition-all duration-200 bg-transparent text-muted-foreground scale-100">
+              <Menu className="size-[19px] shrink-0" strokeWidth={2} />
             </div>
             <span className="text-[10px] font-medium tracking-tight truncate px-0.5 leading-none text-muted-foreground">
               Menú

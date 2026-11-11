@@ -254,7 +254,7 @@ export function AdminExerciseCatalog({
   return (
     <>
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:items-start lg:gap-8">
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:col-span-4 lg:self-start xl:col-span-3 pb-4">
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:col-span-4 lg:self-start xl:col-span-3 pb-4">
           <div className="relative overflow-hidden rounded-[1.25rem] border border-border/60 bg-gradient-to-b from-card to-card/50 shadow-sm backdrop-blur-xl transition-all duration-300 hover:shadow-md">
             <div
               className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-primary/10 blur-3xl transition-opacity duration-500"

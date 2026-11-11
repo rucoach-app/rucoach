@@ -395,7 +395,7 @@ export function UserProfileContent({
 
   return (
     <div className="grid gap-6 lg:grid-cols-12">
-      <aside className="flex flex-col gap-6 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+      <aside className="flex flex-col gap-6 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
         <ProfileAvatarSection
           userId={userId}
           initialUrl={profile.avatar_url}

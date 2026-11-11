@@ -12,9 +12,9 @@ interface AdminPageHeaderSkeletonProps {
 
 /**
  * Mirrors `AdminPageHeader` 1:1 on both Mobile (375px) and Desktop (1440px).
- * - When `hasBackButton` is false, the leading icon is the mobile logo (`size-11 rounded-xl md:hidden`),
+ * - When `hasBackButton` is false, the leading icon is the mobile logo (`size-9 sm:size-10 rounded-xl md:hidden`),
  *   preventing any horizontal title jump on desktop when loading completes.
- * - When `hasBackButton` is true, the back button circle (`size-10 sm:size-11 rounded-full`) is shown on all breakpoints.
+ * - When `hasBackButton` is true, the back button circle (`size-11 rounded-full`) is shown on all breakpoints.
  */
 export function AdminPageHeaderSkeleton({
   hasBackButton = false,
@@ -25,30 +25,30 @@ export function AdminPageHeaderSkeleton({
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
+        'sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center',
         className,
       )}
       aria-hidden
     >
-      <div className="w-full flex min-h-[68px] flex-col justify-center gap-3 py-3 md:min-h-[104px] md:flex-row md:items-center md:justify-between md:gap-4 md:py-0 px-4 sm:px-6 md:px-8">
-        <div className="flex min-w-0 items-center gap-4 h-full">
+      <div className="w-full flex min-h-[54px] flex-col justify-center gap-2 py-2 md:min-h-[96px] md:flex-row md:items-center md:justify-between md:gap-4 md:py-0 px-4 sm:px-6 md:px-8">
+        <div className="flex min-w-0 items-center gap-3 md:gap-4 h-full">
           <div className={cn('shrink-0 flex items-center h-full', !hasBackButton && 'md:hidden')}>
             {hasBackButton ? (
-              <Skeleton className="size-10 sm:size-11 rounded-full" />
+              <Skeleton className="-ml-2.5 size-11 rounded-full md:ml-0" />
             ) : (
-              <Skeleton className="size-10 sm:size-11 rounded-full" />
+              <Skeleton className="size-9 sm:size-10 rounded-xl" />
             )}
           </div>
-          <div className="min-w-0 flex flex-col justify-center py-1 sm:h-full gap-1.5">
+          <div className="min-w-0 flex flex-col justify-center sm:h-full gap-1.5">
             {hasKicker && (
-              <Skeleton className="h-3 w-24 rounded-md opacity-40" />
+              <Skeleton className="h-2.5 w-24 rounded-md opacity-40" />
             )}
-            <Skeleton className="h-7 sm:h-9 w-48 sm:w-64 rounded-xl" />
+            <Skeleton className="h-6 sm:h-9 w-48 sm:w-64 rounded-xl" />
             <Skeleton className="h-3.5 w-44 sm:w-72 max-w-full rounded-md opacity-60" />
           </div>
         </div>
         {actions ? (
-          <div className="flex w-full flex-wrap gap-3 md:w-auto md:flex-row md:items-center md:justify-end shrink-0 md:h-full">
+          <div className="flex w-full flex-wrap gap-2.5 md:w-auto md:flex-row md:items-center md:justify-end shrink-0 md:h-full">
             {actions}
           </div>
         ) : null}

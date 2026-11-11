@@ -558,7 +558,7 @@ export function WorkoutSummaryClient({
           </div>
         </section>
 
-        <aside className="flex flex-col gap-6 lg:sticky lg:top-[calc(112px+1.5rem)] lg:col-span-5 lg:self-start">
+        <aside className="flex flex-col gap-6 lg:sticky lg:top-[calc(96px+1.5rem)] lg:col-span-5 lg:self-start">
           {/* What you just trained (open-gym FinishSummary BodyMap) */}
           {groupedLogs.length > 0 && (
             <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl bg-card/50 transition-all hover:bg-card">

@@ -12,11 +12,11 @@ function InboxAsideSkeleton() {
       aria-hidden
     >
       {/* Header — matches InboxAside header */}
-      <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex flex-col justify-center">
-        <div className="flex min-h-[68px] sm:min-h-[104px] flex-col justify-center gap-3 px-4 py-3 sm:px-6">
+      <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex flex-col justify-center">
+        <div className="flex min-h-[54px] sm:min-h-[96px] flex-col justify-center gap-2.5 px-4 py-2 sm:px-6">
           <div className="flex items-center gap-3">
-            <Skeleton className="size-11 shrink-0 rounded-xl md:hidden" />
-            <Skeleton className="h-7 w-32 rounded-xl" />
+            <Skeleton className="size-9 sm:size-10 shrink-0 rounded-xl md:hidden" />
+            <Skeleton className="h-6 sm:h-7 w-32 rounded-xl" />
           </div>
           {/* Search bar */}
           <Skeleton className="h-10 w-full rounded-2xl" />
@@ -63,10 +63,10 @@ function ThreadPaneSkeleton({ role }: { role: 'admin' | 'client' }) {
       aria-label="Cargando chat"
     >
       {/* Thread header — matches ThreadPane header */}
-      <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
-        <div className="w-full min-h-[68px] sm:min-h-[104px] flex flex-row items-center gap-4 px-4 py-3 sm:py-0 sm:px-6 md:px-8">
+      <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+        <div className="w-full min-h-[54px] sm:min-h-[96px] flex flex-row items-center gap-3 sm:gap-4 px-4 py-2 sm:py-0 sm:px-6 md:px-8">
           {/* For client on mobile: show mobile brand logo placeholder */}
-          {!isAdmin && <Skeleton className="size-11 shrink-0 rounded-xl md:hidden" />}
+          {!isAdmin && <Skeleton className="size-9 sm:size-10 shrink-0 rounded-xl md:hidden" />}
 
           {/* Avatar + Peer info */}
           <div className="flex items-center gap-3 flex-1 h-full">
@@ -117,7 +117,7 @@ function ThreadPaneSkeleton({ role }: { role: 'admin' | 'client' }) {
 export function ChatShellSkeleton({ role }: { role: string }) {
   const isAdmin = role === 'admin'
   return (
-    <div className="flex min-h-0 flex-1 bg-background h-[calc(100dvh-4rem-env(safe-area-inset-bottom,0px))] max-h-[calc(100dvh-4rem-env(safe-area-inset-bottom,0px))] md:h-dvh md:max-h-dvh overflow-hidden">
+    <div className="flex h-full w-full min-h-0 flex-1 bg-background overflow-hidden">
       {isAdmin ? <InboxAsideSkeleton /> : null}
       <ThreadPaneSkeleton role={isAdmin ? 'admin' : 'client'} />
     </div>

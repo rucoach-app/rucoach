@@ -108,19 +108,19 @@ export function ClientSidebar() {
 
   return (
     <Sidebar side="left" collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border/50 flex flex-row items-center px-4 py-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center shrink-0 bg-sidebar/50 backdrop-blur-xl safe-area-header-pt">
-        <div className="flex items-center justify-between w-full gap-3 group-data-[collapsible=icon]:justify-center min-h-[68px] sm:min-h-[104px] py-3">
+      <SidebarHeader className="border-b border-sidebar-border/50 flex flex-row items-center px-4 pt-[env(safe-area-inset-top,0px)] pb-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center shrink-0 bg-sidebar/95 backdrop-blur-xl">
+        <div className="flex items-center justify-between w-full gap-3 group-data-[collapsible=icon]:justify-center min-h-[54px] sm:min-h-[96px] py-2 sm:py-0">
           <Link
             href="/client/dashboard"
             onClick={handleNavClick}
-            className="flex items-center gap-3.5 transition-opacity duration-300 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:hidden h-full min-w-0"
+            className="flex items-center gap-3 transition-opacity duration-300 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:hidden h-full min-w-0"
           >
-            <div className="size-10 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-primary/20 shadow-xs bg-primary/10 p-0.5">
+            <div className="size-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-primary/25 shadow-xs bg-black">
               <Image
                 src="/android-chrome-192x192.png"
                 alt="RU Coach"
-                width={40}
-                height={40}
+                width={36}
+                height={36}
                 className="size-full object-contain"
               />
             </div>
@@ -133,7 +133,7 @@ export function ClientSidebar() {
               </p>
             </div>
           </Link>
-          <SidebarTrigger className="shrink-0 size-9 rounded-xl transition-transform hover:scale-105 active:scale-95" />
+          <SidebarTrigger className="shrink-0 size-11 md:size-9 rounded-xl transition-transform hover:scale-105 active:scale-95" />
         </div>
       </SidebarHeader>
 

@@ -126,7 +126,7 @@ export function ClientDashboardContent({
         subtitle="Sigue tu plan, supera tus marcas y desbloquea el siguiente nivel."
         backHref={null}
       />
-      <div className={`${CLIENT_DATA_PAGE_SHELL} grid gap-8 lg:grid-cols-12`}>
+      <div className={`${CLIENT_DATA_PAGE_SHELL} grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-12`}>
         {daysUntilExpiry !== null && daysUntilExpiry <= 5 && (
           <div className="lg:col-span-12">
             <Card className="overflow-hidden rounded-2xl border-warning/40 bg-warning/10 shadow-sm">
@@ -166,7 +166,7 @@ export function ClientDashboardContent({
           </div>
         )}
 
-        <aside className="order-2 xl:order-1 flex flex-col gap-8 lg:col-span-12 xl:col-span-4 xl:sticky xl:top-[calc(112px+1.5rem)] xl:self-start">
+        <aside className="order-2 xl:order-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 lg:col-span-12 xl:col-span-4 xl:sticky xl:top-[calc(96px+1.5rem)] xl:self-start">
           <LevelProgress
             levelInfo={levelInfo}
             username={profile?.username || profile?.full_name}
@@ -180,38 +180,38 @@ export function ClientDashboardContent({
           />
         </aside>
 
-        <section className="order-1 xl:order-2 flex min-w-0 flex-col gap-8 lg:col-span-12 xl:col-span-8">
-          <div className="flex flex-col gap-4">
+        <section className="order-1 xl:order-2 flex min-w-0 flex-col gap-4 sm:gap-6 lg:gap-8 lg:col-span-12 xl:col-span-8">
+          <div className="flex flex-col gap-3.5 sm:gap-4">
             {weekDaysStatus.length > 0 && (
               <Card className="overflow-hidden border-border/80 shadow-sm ring-1 ring-primary/5 rounded-3xl bg-card/60 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 flex flex-col gap-4">
+                <CardContent className="p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-4">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary shrink-0">
-                        <Flame className="size-4" aria-hidden />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex size-7 sm:size-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary shrink-0">
+                        <Flame className="size-3.5 sm:size-4" aria-hidden />
                       </div>
-                      <span className="text-xs font-black uppercase tracking-widest text-foreground">
+                      <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-foreground truncate">
                         Meta Semanal
                       </span>
                     </div>
                     <span
                       className={cn(
-                        "rounded-xl px-3 py-1 text-[11px] font-black uppercase tracking-wider tabular-nums",
+                        "rounded-xl px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-[11px] font-black uppercase tracking-wider tabular-nums whitespace-nowrap shrink-0",
                         workoutsThisWeek >= weeklyTarget
                           ? "bg-success/15 text-success border border-success/30"
                           : "bg-primary/10 text-primary border border-primary/20",
                       )}
                     >
-                      {workoutsThisWeek} / {weeklyTarget} entrenos esta semana
+                      {workoutsThisWeek} / {weeklyTarget} esta semana
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-7 gap-2 sm:gap-3">
+                  <div className="grid grid-cols-7 gap-1.5 sm:gap-3">
                     {weekDaysStatus.map((day) => (
                       <div
                         key={day.dateStr}
                         className={cn(
-                          "flex flex-col items-center justify-center gap-1.5 rounded-2xl py-2.5 px-1 border transition-all",
+                          "flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl py-2 sm:py-2.5 px-0.5 sm:px-1 border transition-all",
                           day.completed
                             ? "border-success/40 bg-success/10 text-success shadow-xs"
                             : day.isToday

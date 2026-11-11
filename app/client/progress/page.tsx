@@ -71,11 +71,11 @@ export default async function ClientProgressPage() {
   ] = await Promise.all([
     supabase
       .from("workout_sessions")
-      .select("started_at,total_volume_kg,duration_seconds,status")
+      .select("started_at,finished_at,created_at,total_volume_kg,duration_minutes,status")
       .eq("client_id", clientId)
       .eq("status", "completed")
       .order("started_at", { ascending: false })
-      .limit(200),
+      .limit(365),
     supabase
       .from("pr_events")
       .select(
@@ -369,7 +369,7 @@ export default async function ClientProgressPage() {
       <div
         className={`${CLIENT_DATA_PAGE_SHELL} grid gap-6 lg:grid-cols-12 lg:items-start`}
       >
-        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl transition-all hover:shadow-lg">
             <CardHeader className="pb-5 pt-6 px-6">
               <div className="flex items-center gap-4">
@@ -543,9 +543,14 @@ export default async function ClientProgressPage() {
               <CardContent className="p-4 sm:p-6">
                 <ActivityHeatmap
                   sessions={(completedSessions || []).map((s: any) => ({
-                    started_at: s.started_at as string,
-                    total_volume_kg: Number(s.total_volume_kg) || 0,
-                    duration_seconds: Number(s.duration_seconds) || null,
+                    started_at: (s.started_at ?? s.finished_at ?? s.created_at ?? "") as string,
+                    total_volume_kg: Number.isFinite(Number(s.total_volume_kg))
+                      ? Number(s.total_volume_kg)
+                      : 0,
+                    duration_minutes:
+                      s.duration_minutes != null && Number.isFinite(Number(s.duration_minutes))
+                        ? Number(s.duration_minutes)
+                        : null,
                   }))}
                 />
               </CardContent>

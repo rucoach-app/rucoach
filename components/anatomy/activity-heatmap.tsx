@@ -6,6 +6,7 @@ import { formatDateKeyInTimezone, toZonedWallClockDate } from "@/lib/calendar-da
 export interface HeatmapSessionEntry {
   started_at: string;
   total_volume_kg?: number | null;
+  duration_minutes?: number | null;
   duration_seconds?: number | null;
 }
 
@@ -40,7 +41,7 @@ function isoOf(d: Date): string {
 function formatDateLong(iso: string): string {
   try {
     const [y, m, d] = iso.split("-").map(Number);
-    const date = new Date(y, m - 1, d);
+    const date = new Date(y, m - 1, d, 12, 0, 0);
     return date.toLocaleDateString("es-MX", {
       weekday: "short",
       day: "numeric",
@@ -66,16 +67,40 @@ export function ActivityHeatmap({
     min: number;
   } | null>(null);
 
-  // Auto-scroll to the end (today) on initial mount
+  const prevWidthRef = useRef<number>(0);
+
+  // Auto-scroll to the end (today) on mount, tab reveal (hidden -> visible), or data change
   useEffect(() => {
     const el = wrapRef.current;
-    if (el) {
-      // Use requestAnimationFrame to ensure layout dimensions are fully calculated
-      requestAnimationFrame(() => {
-        el.scrollLeft = el.scrollWidth;
-      });
-    }
-  }, []);
+    if (!el) return;
+
+    const scrollToLatest = () => {
+      if (el.clientWidth > 0) {
+        el.scrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+      }
+    };
+
+    const rafId = requestAnimationFrame(scrollToLatest);
+    prevWidthRef.current = el.clientWidth;
+
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver((entries) => {
+            const w = entries[0]?.contentRect?.width ?? el.clientWidth;
+            const prev = prevWidthRef.current;
+            prevWidthRef.current = w;
+            if (prev === 0 && w > 0) {
+              requestAnimationFrame(scrollToLatest);
+            }
+          })
+        : null;
+    ro?.observe(el);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro?.disconnect();
+    };
+  }, [sessions?.length]);
 
   const agg: Record<string, { n: number; vol: number; min: number }> = {};
   for (const s of sessions || []) {
@@ -85,11 +110,16 @@ export function ActivityHeatmap({
     const key = formatDateKeyInTimezone(d);
     const entry = (agg[key] = agg[key] || { n: 0, vol: 0, min: 0 });
     entry.n += 1;
-    const vol = Number(s.total_volume_kg) || 0;
-    entry.vol += Math.max(0, vol);
-    const durMin = s.duration_seconds
-      ? Math.max(1, Math.round(Number(s.duration_seconds) / 60))
-      : 45;
+    const rawVol = Number(s.total_volume_kg);
+    entry.vol += Number.isFinite(rawVol) && rawVol > 0 ? rawVol : 0;
+    const rawMin = Number(s.duration_minutes);
+    const rawSec = Number(s.duration_seconds);
+    const durMin =
+      Number.isFinite(rawMin) && rawMin > 0
+        ? Math.max(1, Math.round(rawMin))
+        : Number.isFinite(rawSec) && rawSec > 0
+          ? Math.max(1, Math.round(rawSec / 60))
+          : 45;
     entry.min += durMin;
   }
 
@@ -142,7 +172,7 @@ export function ActivityHeatmap({
     const colStart = new Date(start);
     colStart.setDate(start.getDate() + wk * 7);
     const mo = colStart.getMonth();
-    const showM = mo !== lastMonth && colStart.getDate() <= 7 && wk < 51;
+    const showM = mo !== lastMonth && colStart.getDate() <= 7 && wk <= 51;
     months.push(
       <span
         key={wk}
@@ -159,8 +189,9 @@ export function ActivityHeatmap({
       day.setDate(colStart.getDate() + d);
       const key = isoOf(day);
       const a = agg[key];
-      const isFuture = day > today;
+      const isFuture = key > todayKey;
       const isToday = key === todayKey;
+      const isSelected = activeDay?.key === key;
 
       const title = a
         ? `${key} · ${a.n} ${a.n === 1 ? "sesión" : "sesiones"} · ${a.min} min · ${Math.round(a.vol).toLocaleString("es-MX")} kg`
@@ -168,19 +199,30 @@ export function ActivityHeatmap({
           ? `${key} · Próximo`
           : `${key} · Sin entrenamientos`;
 
+      const selectCell = () => {
+        setActiveDay({
+          key,
+          n: a?.n ?? 0,
+          vol: a?.vol ?? 0,
+          min: a?.min ?? 0,
+        });
+        onDay?.(key);
+      };
+
       cells.push(
         <div
           key={d}
-          className={`hm-c l${level(a)}${isToday ? " today" : ""}${isFuture ? " future" : ""} w-[11px] h-[11px] min-w-[11px] min-h-[11px] rounded-[3px] flex-none cursor-pointer transition-transform hover:scale-125`}
+          role="button"
+          tabIndex={0}
+          aria-label={title}
+          className={`hm-c l${level(a)}${isToday ? " today" : ""}${isFuture ? " future" : ""}${isSelected ? " selected" : ""} w-[11px] h-[11px] min-w-[11px] min-h-[11px] rounded-[3px] flex-none cursor-pointer transition-transform hover:scale-125`}
           title={title}
-          onClick={() => {
-            setActiveDay({
-              key,
-              n: a?.n ?? 0,
-              vol: a?.vol ?? 0,
-              min: a?.min ?? 0,
-            });
-            onDay?.(key);
+          onClick={selectCell}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              selectCell();
+            }
           }}
           onMouseEnter={() => {
             if (a) {

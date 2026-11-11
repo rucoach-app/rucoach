@@ -93,7 +93,7 @@ export default async function ClientWorkoutsPage({
         : `${rangeSessionCount} ${rangeSessionCount === 1 ? "sesión" : "sesiones"} encontradas${totalCompleted > rangeSessionCount ? ` · ${totalCompleted} en total histórico` : ""}.`;
 
   const historyAside = (
-    <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+    <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
       <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl transition-all hover:shadow-lg">
         <CardHeader className="pb-5 pt-6 px-6">
           <div className="flex items-center gap-4">

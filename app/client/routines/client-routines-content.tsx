@@ -522,7 +522,7 @@ export function ClientRoutinesContent({
           })}
         </section>
 
-        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           {suggestions.length > 0 ? (
             <Card className="overflow-hidden border-primary/20 bg-primary/5 shadow-md ring-1 ring-primary/5 rounded-3xl backdrop-blur-md">
               <CardHeader className="pb-4 pt-6 px-6">

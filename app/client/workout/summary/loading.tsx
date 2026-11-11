@@ -70,7 +70,7 @@ export default function Loading() {
             </div>
           </section>
 
-          <aside className="flex flex-col gap-6 lg:sticky lg:top-[calc(112px+1.5rem)] lg:col-span-5 lg:self-start">
+          <aside className="flex flex-col gap-6 lg:sticky lg:top-[calc(96px+1.5rem)] lg:col-span-5 lg:self-start">
             <Card className="overflow-hidden rounded-3xl border-border/80 bg-card/60 shadow-sm ring-1 ring-primary/5">
               <CardHeader className="pb-3">
                 <Skeleton className="h-5 w-36" />

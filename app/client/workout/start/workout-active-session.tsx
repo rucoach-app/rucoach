@@ -90,6 +90,21 @@ function formatElapsed(totalSeconds: number) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+function parseTargetReps(raw?: string | null): number {
+  const parsed = Number.parseInt(String(raw ?? "").trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.min(500, parsed) : 10;
+}
+
+function sanitizeWeightKg(raw: unknown): number {
+  const n = typeof raw === "number" ? raw : Number.parseFloat(String(raw ?? ""));
+  return Number.isFinite(n) && n >= 0 ? Math.min(1500, Math.round(n * 100) / 100) : 0;
+}
+
+function sanitizeRepsCount(raw: unknown, fallback = 1): number {
+  const n = typeof raw === "number" ? raw : Number.parseInt(String(raw ?? ""), 10);
+  return Number.isFinite(n) && n > 0 ? Math.min(500, Math.round(n)) : fallback;
+}
+
 interface WorkoutActiveSessionProps {
   clientId: string;
   clientRoutineId?: string | null;
@@ -348,12 +363,12 @@ export function WorkoutActiveSession({
     const id = currentExercise.id.toString();
     setSets((prev) => {
       if (prev.has(id)) return prev;
-      const targetReps = parseInt(currentExercise.reps || "10", 10);
+      const targetReps = parseTargetReps(currentExercise.reps);
       const initialSets: SetLog[] = Array.from(
         { length: currentExercise.sets },
         (_, i) => ({
           setNumber: i + 1,
-          weight: getSuggestedWeight(currentExercise.exercise_id, targetReps),
+          weight: sanitizeWeightKg(getSuggestedWeight(currentExercise.exercise_id, targetReps)),
           reps: targetReps,
           completed: false,
           isPR: false,
@@ -507,17 +522,21 @@ export function WorkoutActiveSession({
         return new Map(prev).set(id, updatedSets);
       }
 
+      const safeWeight = sanitizeWeightKg(set.weight);
+      const safeReps = sanitizeRepsCount(set.reps, 1);
       const isPR = checkForPR(
         currentExercise.exercise_id,
-        set.weight,
-        set.reps,
+        safeWeight,
+        safeReps,
         updatedSets,
         setIndex,
       );
+      set.weight = safeWeight;
+      set.reps = safeReps;
       set.completed = true;
       set.isPR = isPR;
       if (isPR && loadPolicyByExerciseId.get(currentExercise.exercise_id)) {
-        prToast = { weight: set.weight, reps: set.reps };
+        prToast = { weight: safeWeight, reps: safeReps };
       }
       // Trigger rest after any completed set, UNLESS:
       // 1) All sets of this exercise are done AND next exercise is a superset partner (back-to-back)
@@ -639,13 +658,19 @@ export function WorkoutActiveSession({
     const id = currentExercise.id.toString();
     setSets((prev) => {
       const list = prev.get(id);
-      if (!list) return prev;
+      if (!list || !list[setIndex]) return prev;
       const updatedSets = [...list];
-      const set = updatedSets[setIndex];
+      const current = updatedSets[setIndex];
       if (field === "weight") {
-        set.weight = Math.max(0, set.weight + delta);
+        updatedSets[setIndex] = {
+          ...current,
+          weight: sanitizeWeightKg(sanitizeWeightKg(current.weight) + delta),
+        };
       } else {
-        set.reps = Math.max(1, set.reps + delta);
+        updatedSets[setIndex] = {
+          ...current,
+          reps: Math.max(1, sanitizeRepsCount(current.reps, 1) + delta),
+        };
       }
       return new Map(prev).set(id, updatedSets);
     });
@@ -654,16 +679,17 @@ export function WorkoutActiveSession({
   const addSet = () => {
     if (!currentExercise) return;
     const id = currentExercise.id.toString();
-    const targetReps = parseInt(currentExercise.reps || "10", 10);
+    const targetReps = parseTargetReps(currentExercise.reps);
     setSets((prev) => {
       const list = prev.get(id) || [];
       const last = list[list.length - 1];
       const nextSet: SetLog = {
         setNumber: list.length + 1,
-        weight:
+        weight: sanitizeWeightKg(
           last?.weight ??
-          getSuggestedWeight(currentExercise.exercise_id, targetReps),
-        reps: last?.reps ?? targetReps,
+            getSuggestedWeight(currentExercise.exercise_id, targetReps),
+        ),
+        reps: sanitizeRepsCount(last?.reps, targetReps),
         completed: false,
         isPR: false,
       };
@@ -718,15 +744,14 @@ export function WorkoutActiveSession({
     sets.forEach((exerciseSets) => {
       exerciseSets.forEach((set) => {
         if (set.completed) {
-          totalVolume += set.weight * set.reps;
+          totalVolume += sanitizeWeightKg(set.weight) * sanitizeRepsCount(set.reps, 1);
         }
       });
     });
 
-    const duration = Math.max(
-      1,
-      Math.round((Date.now() - workoutStartTime) / 60000),
-    );
+    const durationRaw = Math.round((Date.now() - workoutStartTime) / 60000);
+    const duration =
+      Number.isFinite(durationRaw) && durationRaw > 0 ? durationRaw : 1;
 
     try {
       const allCompletedSets: {
@@ -748,9 +773,9 @@ export function WorkoutActiveSession({
           if (!set.completed) return;
           allCompletedSets.push({
             exerciseId,
-            setNumber: set.setNumber,
-            weight: set.weight,
-            reps: set.reps,
+            setNumber: Number.isFinite(set.setNumber) ? set.setNumber : 1,
+            weight: sanitizeWeightKg(set.weight),
+            reps: sanitizeRepsCount(set.reps, 1),
             isPR: set.isPR,
           });
         });
@@ -828,7 +853,25 @@ export function WorkoutActiveSession({
       ),
     );
     setWorkoutNote(restoreDraft.workoutNote);
-    setSets(new Map(Object.entries(restoreDraft.sets)));
+    const sanitizedEntries: [string, SetLog[]][] = Object.entries(
+      restoreDraft.sets || {},
+    ).map(([exKey, list]) => [
+      exKey,
+      Array.isArray(list)
+        ? list.map((s, idx) => ({
+            setNumber:
+              Number.isFinite(s?.setNumber) && s.setNumber > 0
+                ? Math.round(s.setNumber)
+                : idx + 1,
+            weight: sanitizeWeightKg(s?.weight),
+            reps: sanitizeRepsCount(s?.reps, 10),
+            rpe: s?.rpe,
+            completed: Boolean(s?.completed),
+            isPR: Boolean(s?.isPR),
+          }))
+        : [],
+    ]);
+    setSets(new Map(sanitizedEntries));
     setRestoreDraft(null);
     setRestoreOpen(false);
     setDraftCheckpoint("ready");
@@ -878,7 +921,7 @@ export function WorkoutActiveSession({
       if (list) {
         for (const s of list) {
           if (s.completed) {
-            volume += (s.weight || 0) * (s.reps || 0);
+            volume += sanitizeWeightKg(s.weight) * sanitizeRepsCount(s.reps, 0);
           }
         }
       }
@@ -962,14 +1005,14 @@ export function WorkoutActiveSession({
   return (
     <div className="flex min-h-dvh flex-col overflow-x-clip bg-background">
       {/* Compact Sticky Workout Header (Single Row on Mobile & Desktop + Live Progress Bar) */}
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x">
-        <div className="container mx-auto flex min-h-[64px] max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:min-h-[84px] sm:gap-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x">
+        <div className="container mx-auto flex min-h-[54px] max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:min-h-[84px] sm:gap-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3.5">
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="size-9 sm:size-10 shrink-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
+              className="-ml-1.5 size-11 shrink-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors sm:ml-0"
               aria-label="Salir"
               onClick={() => {
                 if (isDirty) setLeaveOpen(true);
@@ -1790,7 +1833,7 @@ export function WorkoutActiveSession({
                                     aria-label="Peso en kilogramos"
                                     value={set.weight}
                                     onChange={(e) => {
-                                      const val = parseFloat(e.target.value) || 0;
+                                      const val = sanitizeWeightKg(e.target.value);
                                       setSets((prev) => {
                                         const id = currentExercise.id.toString();
                                         const list = prev.get(id);
@@ -1838,7 +1881,7 @@ export function WorkoutActiveSession({
                                   aria-label="Repeticiones"
                                   value={set.reps}
                                   onChange={(e) => {
-                                    const val = parseInt(e.target.value, 10) || 1;
+                                    const val = sanitizeRepsCount(e.target.value, 1);
                                     setSets((prev) => {
                                       const id = currentExercise.id.toString();
                                       const list = prev.get(id);
@@ -1916,7 +1959,7 @@ export function WorkoutActiveSession({
                                 aria-label="Peso en kilogramos"
                                 value={set.weight}
                                 onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
+                                  const val = sanitizeWeightKg(e.target.value);
                                   setSets((prev) => {
                                     const id = currentExercise.id.toString();
                                     const list = prev.get(id);
@@ -1959,7 +2002,7 @@ export function WorkoutActiveSession({
                               aria-label="Repeticiones"
                               value={set.reps}
                               onChange={(e) => {
-                                const val = parseInt(e.target.value, 10) || 1;
+                                const val = sanitizeRepsCount(e.target.value, 1);
                                 setSets((prev) => {
                                   const id = currentExercise.id.toString();
                                   const list = prev.get(id);

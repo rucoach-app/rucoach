@@ -11,9 +11,9 @@ interface ClientStackPageHeaderSkeletonProps {
 
 /**
  * Mirrors `ClientStackPageHeader` 1:1 on Mobile (375px) and Desktop (1440px).
- * - When `withBackButton` is false (default), the leading icon is the mobile logo (`size-11 rounded-xl md:hidden`),
+ * - When `withBackButton` is false (default), the leading icon is the mobile logo (`size-9 sm:size-10 rounded-xl md:hidden`),
  *   preventing any horizontal title shift on desktop when loading completes.
- * - When `withBackButton` is true, the back button circle (`size-10 sm:size-11 rounded-full`) is shown on all breakpoints.
+ * - When `withBackButton` is true, the back button circle (`size-11 rounded-full`) is shown on all breakpoints.
  */
 export function ClientStackPageHeaderSkeleton({
   withBackButton = false,
@@ -22,28 +22,28 @@ export function ClientStackPageHeaderSkeleton({
 }: ClientStackPageHeaderSkeletonProps = {}) {
   return (
     <header
-      className="sticky top-0 z-50 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center"
+      className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center"
       aria-hidden
     >
-      <div className="container flex min-h-[68px] flex-col justify-center gap-3 py-3 sm:min-h-[104px] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0">
-        <div className="flex min-w-0 items-center gap-4 h-full">
+      <div className="container flex min-h-[54px] flex-col justify-center gap-2 py-2 sm:min-h-[96px] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4 h-full">
           <div className={cn('shrink-0 flex items-center h-full', !withBackButton && 'md:hidden')}>
             {withBackButton ? (
-              <Skeleton className="size-10 sm:size-11 rounded-full" />
+              <Skeleton className="-ml-2.5 size-11 rounded-full md:ml-0" />
             ) : (
-              <Skeleton className="size-10 sm:size-11 rounded-full" />
+              <Skeleton className="size-9 sm:size-10 rounded-xl" />
             )}
           </div>
-          <div className="min-w-0 flex flex-col justify-center py-1 sm:h-full gap-1.5">
+          <div className="min-w-0 flex flex-col justify-center sm:h-full gap-1.5">
             {withKicker && (
-              <Skeleton className="h-3 w-24 rounded-md opacity-40" />
+              <Skeleton className="h-2.5 w-24 rounded-md opacity-40" />
             )}
-            <Skeleton className="h-7 sm:h-9 w-48 sm:w-64 rounded-xl" />
+            <Skeleton className="h-6 sm:h-9 w-48 sm:w-64 rounded-xl" />
             <Skeleton className="h-3.5 sm:h-4 w-40 sm:w-64 max-w-full rounded-lg opacity-60" />
           </div>
         </div>
         {actions ? (
-          <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end shrink-0 sm:h-full">
+          <div className="flex w-full flex-wrap gap-2.5 sm:w-auto sm:flex-row sm:items-center sm:justify-end shrink-0 sm:h-full">
             {actions}
           </div>
         ) : null}
@@ -94,7 +94,7 @@ export function ClientWorkoutsPageSkeleton() {
           </Card>
         </section>
 
-        <aside className="order-2 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+        <aside className="order-2 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           <Card className="overflow-hidden border-border/80 shadow-sm ring-1 ring-primary/5 rounded-3xl bg-card/60 backdrop-blur-sm">
             <CardHeader className="pb-4 pt-6 px-5 sm:px-6">
               <div className="flex items-center gap-2.5">
@@ -127,7 +127,7 @@ export function ClientProgressPageSkeleton() {
         aria-busy="true"
         aria-label="Cargando progreso"
       >
-        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           <Card className="overflow-hidden rounded-3xl border-border/80 shadow-sm ring-1 ring-primary/5 bg-card/60">
             <CardHeader className="pb-3">
               <Skeleton className="h-5 w-36 rounded-md" />
@@ -176,7 +176,7 @@ export function ClientMeasurementsPageSkeleton() {
         aria-busy="true"
         aria-label="Cargando medidas"
       >
-        <aside className="flex flex-col gap-6 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+        <aside className="flex flex-col gap-6 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           <Card className="overflow-hidden border-border/80 shadow-sm ring-1 ring-primary/5 rounded-3xl bg-card/60 backdrop-blur-sm">
             <CardHeader className="flex flex-col gap-4 pb-5 pt-6 px-5 sm:px-6">
               <div className="flex items-start gap-3.5">
@@ -300,7 +300,7 @@ export function ClientPhotosPageSkeleton() {
         aria-busy="true"
         aria-label="Cargando fotos de progreso"
       >
-        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           <Card className="overflow-hidden rounded-3xl border-border/80 bg-card/60 shadow-sm ring-1 ring-primary/5">
             <CardHeader className="space-y-4 pb-5">
               <div className="flex items-center gap-4">
@@ -365,7 +365,7 @@ export function ClientProfilePageSkeleton() {
         aria-label="Cargando perfil"
       >
         <div className="grid gap-6 lg:grid-cols-12">
-          <aside className="flex flex-col gap-6 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+          <aside className="flex flex-col gap-6 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
             {/* Avatar Card */}
             <Card className="rounded-3xl border-border/80 bg-card/60 shadow-sm ring-1 ring-primary/5">
               <CardHeader>

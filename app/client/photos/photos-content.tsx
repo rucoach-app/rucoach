@@ -161,7 +161,7 @@ export function PhotosContent({
   return (
     <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
       {/* Left Aside: Studio Overview, Angle Checklist & Tips */}
-      <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(112px+1.5rem)] lg:self-start">
+      <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
         <Card className="overflow-hidden rounded-3xl border-border/80 shadow-md ring-1 ring-primary/5 transition-all hover:shadow-lg">
           <CardHeader className="space-y-4 pb-5">
             <div className="flex items-center gap-4">

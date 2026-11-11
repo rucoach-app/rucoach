@@ -110,19 +110,41 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
     return { success: false, error: "No autorizado" };
   }
 
-  // Create workout session
-  const totalVolume = data.sets.reduce(
+  // Create workout session (saneado estrictamente contra NaN/Infinity/"Al fallo")
+  const sanitizedSets = (data.sets || []).map((set, idx) => {
+    const rawW = typeof set.weight === "number" ? set.weight : Number(set.weight);
+    const rawR = typeof set.reps === "number" ? set.reps : Number(set.reps);
+    const rawNum =
+      typeof set.setNumber === "number" ? set.setNumber : Number(set.setNumber);
+    return {
+      ...set,
+      setNumber:
+        Number.isFinite(rawNum) && rawNum > 0 ? Math.round(rawNum) : idx + 1,
+      weight:
+        Number.isFinite(rawW) && rawW >= 0
+          ? Math.round(rawW * 100) / 100
+          : 0,
+      reps: Number.isFinite(rawR) && rawR >= 0 ? Math.round(rawR) : 0,
+    };
+  });
+  const safeDurationMinutes =
+    Number.isFinite(Number(data.durationMinutes)) &&
+    Number(data.durationMinutes) > 0
+      ? Math.max(1, Math.round(Number(data.durationMinutes)))
+      : 1;
+
+  const totalVolume = sanitizedSets.reduce(
     (sum, set) => sum + set.weight * set.reps,
     0,
   );
-  const uniqueExercises = new Set(data.sets.map((s) => s.exerciseId)).size;
+  const uniqueExercises = new Set(sanitizedSets.map((s) => s.exerciseId)).size;
 
   const finishedAtIso = new Date().toISOString();
   const parsedStartedAtMs = data.startedAt ? new Date(data.startedAt).getTime() : Number.NaN;
   const startedAtIso =
     Number.isFinite(parsedStartedAtMs) && parsedStartedAtMs <= Date.now()
       ? new Date(parsedStartedAtMs).toISOString()
-      : new Date(Date.now() - Math.max(0, data.durationMinutes) * 60000).toISOString();
+      : new Date(Date.now() - safeDurationMinutes * 60000).toISOString();
 
   const { data: session, error: sessionError } = await supabase
     .from("workout_sessions")
@@ -132,7 +154,7 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
       status: "completed",
       started_at: startedAtIso,
       finished_at: finishedAtIso,
-      duration_minutes: data.durationMinutes,
+      duration_minutes: safeDurationMinutes,
       exercises_completed: uniqueExercises,
       exercises_skipped: 0,
       total_volume_kg: totalVolume,
@@ -147,7 +169,7 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
     return { success: false, error: sessionError.message };
   }
 
-  const uniqueExerciseIds = [...new Set(data.sets.map((s) => s.exerciseId))];
+  const uniqueExerciseIds = [...new Set(sanitizedSets.map((s) => s.exerciseId))];
   const { data: exerciseRows } =
     uniqueExerciseIds.length > 0
       ? await supabase
@@ -194,7 +216,7 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
     (currentPRRows ?? []).map((r) => [r.exercise_id, r]),
   );
 
-  const setsInPRorder = [...data.sets].sort((a, b) => {
+  const setsInPRorder = [...sanitizedSets].sort((a, b) => {
     if (a.exerciseId !== b.exerciseId)
       return a.exerciseId.localeCompare(b.exerciseId);
     return a.setNumber - b.setNumber;
@@ -226,7 +248,7 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
   }
 
   // Log all sets (exercise_logs requiere user_id)
-  const exerciseLogs = data.sets.map((set) => ({
+  const exerciseLogs = sanitizedSets.map((set) => ({
     workout_session_id: session.id,
     user_id: client.user_id,
     exercise_id: set.exerciseId,
@@ -241,7 +263,7 @@ export async function completeWorkoutSession(data: WorkoutCompletionData) {
 
   await supabase.from("exercise_logs").insert(exerciseLogs);
 
-  const prSets = data.sets.filter(
+  const prSets = sanitizedSets.filter(
     (s) => isPRByExerciseSet.get(`${s.exerciseId}:${s.setNumber}`) ?? false,
   );
   if (prSets.length > 0) {
@@ -692,7 +714,12 @@ export async function applyProgressionToRoutineDay(args: {
 
   for (const row of routineExercises ?? []) {
     const pr = prByExercise.get(row.exercise_id);
-    const targetReps = parseInt((row.reps ?? "10").split("-")[0] ?? "10");
+    const parsedReps = Number.parseInt(
+      (row.reps ?? "10").split("-")[0]?.trim() ?? "10",
+      10,
+    );
+    const targetReps =
+      Number.isFinite(parsedReps) && parsedReps > 0 ? parsedReps : 10;
 
     const suggestion = suggestWeightForTargetReps({
       estimated1RM: pr?.estimated_1rm,

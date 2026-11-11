@@ -161,13 +161,13 @@ function buildMessageRows(messages: Message[]): MessageRow[] {
 function PageHeaderLeadingIcon() {
   return (
     <div className="flex items-center md:hidden">
-      <div className="size-10 sm:size-11 rounded-full overflow-hidden border border-primary/20 shadow-xs shrink-0 bg-primary/10 flex items-center justify-center p-1.5">
+      <div className="size-9 sm:size-10 rounded-xl overflow-hidden border border-primary/25 shadow-xs shrink-0 bg-black flex items-center justify-center">
         <Image
           src="/android-chrome-192x192.png"
           alt="Logo RU Coach"
-          width={36}
-          height={36}
-          className="size-full object-contain p-0.5"
+          width={40}
+          height={40}
+          className="size-full object-contain"
         />
       </div>
     </div>
@@ -366,13 +366,13 @@ function ThreadPane({
   return (
     <div className="flex w-full min-h-0 flex-1 flex-col relative overflow-hidden">
       {/* ─── Thread header ─── */}
-      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/90 backdrop-blur-xl safe-area-header-pt safe-area-x transition-all">
+      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x transition-all">
         <div
           className={cn(
             'flex items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 w-full',
             isKeyboardOpen
-              ? 'min-h-[56px] sm:min-h-[104px] py-2 sm:py-0'
-              : 'min-h-[68px] sm:min-h-[104px] py-3 sm:py-0',
+              ? 'min-h-[50px] sm:min-h-[96px] py-1.5 sm:py-0'
+              : 'min-h-[54px] sm:min-h-[96px] py-2 sm:py-0',
           )}
         >
           {/* Leading icon: back chevron only (admin mobile). El cliente ya navega con la barra inferior,
@@ -1032,8 +1032,8 @@ export function ChatView({
     return (
       <div className="flex h-full w-full min-h-0 flex-1 flex-col relative overflow-hidden">
         {/* Consistent AdminPageHeader-style header */}
-        <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
-          <div className="flex min-h-[68px] sm:min-h-[104px] items-center gap-4 px-4 py-3 sm:px-6 md:px-8 sm:py-0 w-full">
+        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+          <div className="flex min-h-[54px] sm:min-h-[96px] items-center gap-3 sm:gap-4 px-4 py-2 sm:px-6 md:px-8 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">
               <h1 className="text-xl font-black tracking-tight text-pretty sm:text-2xl text-foreground leading-[1.1]">
@@ -1111,8 +1111,8 @@ export function ChatView({
         aria-label="Lista de conversaciones"
       >
         {/* Inbox header — matches AdminPageHeader structure */}
-        <header className="shrink-0 border-b border-border/50 bg-background/85 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
-          <div className="flex min-h-[68px] sm:min-h-[104px] items-center gap-4 px-4 py-3 sm:px-6 sm:py-0 w-full">
+        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-header-pt safe-area-x flex items-center">
+          <div className="flex min-h-[54px] sm:min-h-[96px] items-center gap-3 sm:gap-4 px-4 py-2 sm:px-6 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">
               <h1 className="text-xl font-black tracking-tight text-pretty sm:text-2xl text-foreground leading-[1.1]">

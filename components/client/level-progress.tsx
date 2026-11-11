@@ -23,8 +23,8 @@ export function LevelProgress({ levelInfo, username, avatarUrl }: LevelProgressP
 
   return (
     <Card className="@container/level py-0 gap-0 overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl bg-card/60 backdrop-blur-sm transition-all hover:bg-card">
-      <CardContent className="p-6 @md/level:p-8">
-        <div className="flex flex-col items-center gap-5 @md/level:flex-row @md/level:items-start @md/level:gap-8">
+      <CardContent className="p-4 sm:p-6 @md/level:p-8">
+        <div className="flex flex-col items-center gap-3.5 sm:gap-5 @md/level:flex-row @md/level:items-start @md/level:gap-8">
           <div className="relative group shrink-0">
             <div className="absolute inset-x-0 bottom-0 top-0 bg-primary/20 blur-2xl rounded-full scale-0 group-hover:scale-125 transition-transform duration-500" />
             <CircularProgress
@@ -60,7 +60,7 @@ export function LevelProgress({ levelInfo, username, avatarUrl }: LevelProgressP
             </div>
           </div>
 
-          <div className="flex w-full min-w-0 flex-1 flex-col gap-5 text-center @md/level:text-left">
+          <div className="flex w-full min-w-0 flex-1 flex-col gap-3 sm:gap-5 text-center @md/level:text-left">
             <div className="flex flex-col items-center gap-2 @md/level:flex-row @md/level:items-center @md/level:justify-between">
               <div className="flex flex-col gap-1 min-w-0">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Atleta de Élite</span>

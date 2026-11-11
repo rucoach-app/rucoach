@@ -96,6 +96,15 @@ async function main() {
   }
 
   console.log("");
+  const { error: seqError } = await targetSupabase.rpc("sync_routine_exercises_sequence");
+  if (seqError) {
+    console.warn("⚠️  No se pudo sincronizar routine_exercises_id_seq automáticamente:", seqError.message);
+    console.warn("   Ejecuta supabase/migrations/20261110_routine_builder_atomic_rpcs.sql en el SQL Editor del proyecto.");
+  } else {
+    console.log("🔢 Secuencia routine_exercises_id_seq sincronizada correctamente.");
+  }
+
+  console.log("");
   console.log("🎉 ¡Restauración completada con éxito!");
 }
 

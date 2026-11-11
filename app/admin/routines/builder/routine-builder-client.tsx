@@ -351,9 +351,11 @@ export function RoutineBuilderClient({
       try {
         const data = await getExercisesForSelector();
         if (isMounted) {
-          setExercises(data as Exercise[]);
+          if (data.length > 0) {
+            setExercises(data as Exercise[]);
+            await setCachedExercises(data as Exercise[]);
+          }
           setLoadingExercises(false);
-          await setCachedExercises(data as Exercise[]);
         }
       } catch (err) {
         console.error("Error loading exercises", err);
@@ -682,19 +684,35 @@ export function RoutineBuilderClient({
       };
 
       if (routineId) {
-        await updateRoutineFromBuilder(routineId, payload);
+        const res = await updateRoutineFromBuilder(routineId, payload);
+        if (!res.success) {
+          toast.error("Error al guardar la rutina", {
+            description:
+              res.error ||
+              "No pudimos guardar los cambios. Revisa los datos e inténtalo de nuevo.",
+          });
+          return;
+        }
         try {
           localStorage.removeItem(draftStorageKey);
         } catch {}
         toast.success("Rutina actualizada.");
         router.push(`/admin/routines/${routineId}`);
       } else {
-        const id = await saveRoutineFromBuilder(payload);
+        const res = await saveRoutineFromBuilder(payload);
+        if (!res.success || !res.routineId) {
+          toast.error("Error al guardar la rutina", {
+            description:
+              res.error ||
+              "No pudimos crear la rutina. Revisa los datos e inténtalo de nuevo.",
+          });
+          return;
+        }
         try {
           localStorage.removeItem(draftStorageKey);
         } catch {}
         toast.success("Rutina creada.");
-        router.push(`/admin/routines/${id}`);
+        router.push(`/admin/routines/${res.routineId}`);
       }
     } catch (err: unknown) {
       const message =

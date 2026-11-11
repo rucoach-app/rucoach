@@ -42,6 +42,7 @@ import {
 } from "@/app/actions/exercises";
 import { getR2PresignedUrl } from "@/app/actions/r2-storage";
 import { R2_PUBLIC_URL } from "@/lib/constants";
+import { clearCachedExercises } from "@/lib/local-cache";
 import { exEquipment, exInstructions, exName } from "@/lib/exercise-i18n";
 import { toast } from "sonner";
 import {
@@ -445,6 +446,7 @@ export function ExerciseForm({
         toast.error(res.error || "No se pudo eliminar el ejercicio");
         return;
       }
+      await clearCachedExercises().catch(() => {});
       toast.success("Ejercicio eliminado del catálogo");
       router.push("/admin/exercises");
       router.refresh();
@@ -495,6 +497,7 @@ export function ExerciseForm({
         toast.success("Ejercicio creado en el catálogo");
       }
 
+      await clearCachedExercises().catch(() => {});
       router.push(returnHref);
       router.refresh();
     } catch (err) {

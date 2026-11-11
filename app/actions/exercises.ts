@@ -595,9 +595,14 @@ export async function getExercisesForSelector() {
         "id, name, name_es, gif_url, body_parts, body_parts_es, target_muscles, target_muscles_es, equipments, primary_muscle, secondary_muscle, secondary_muscles, secondary_muscles_es, exercise_type, equipment, equipment_es, instructions_es, technique_notes",
       )
       .order("name")
+      .order("id", { ascending: true })
       .range(from, to);
 
-    if (error || !data || data.length === 0) break;
+    if (error) {
+      console.error("getExercisesForSelector error:", error);
+      throw new Error(error.message);
+    }
+    if (!data || data.length === 0) break;
     allExercises = [...allExercises, ...data];
     if (data.length < 1000) break;
     from += 1000;

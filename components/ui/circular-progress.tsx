@@ -30,11 +30,11 @@ export function CircularProgress({
 
   return (
     <div
-      className={cn("relative inline-flex items-center justify-center", className)}
+      className={cn("relative inline-flex items-center justify-center overflow-visible", className)}
       style={{ width: size, height: size }}
     >
       <svg
-        className="transform -rotate-90"
+        className="transform -rotate-90 overflow-visible"
         width={size}
         height={size}
       >
@@ -48,11 +48,11 @@ export function CircularProgress({
           cx={size / 2}
           cy={size / 2}
         />
-        {/* Progress circle with glow shadow */}
+        {/* Progress circle with smooth glow shadow */}
         <circle
           className={cn(
-            "transition-all duration-700 ease-out",
-            variant === "primary" ? "text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" : "text-muted-foreground"
+            "transition-all duration-300 ease-out",
+            variant === "primary" ? "text-primary" : "text-muted-foreground"
           )}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
@@ -64,11 +64,11 @@ export function CircularProgress({
           cx={size / 2}
           cy={size / 2}
           style={{
-            filter: variant === "primary" ? 'drop-shadow(0 0 12px currentColor)' : 'none'
+            filter: variant === "primary" ? "drop-shadow(0 0 10px hsl(var(--primary) / 0.55))" : "none",
           }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
         {children || (showValue && (
           <span className="text-2xl font-black tabular-nums">{Math.round(progress * 100)}%</span>
         ))}

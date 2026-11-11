@@ -696,8 +696,14 @@ export function RoutineBuilderClient({
         toast.success("Rutina creada.");
         router.push(`/admin/routines/${id}`);
       }
-    } catch {
-      toast.error("No pudimos guardar. Revisa los datos e inténtalo de nuevo.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "No pudimos guardar. Revisa los datos e inténtalo de nuevo.";
+      toast.error("Error al guardar la rutina", {
+        description: message,
+      });
     } finally {
       setSaving(false);
     }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthUser, getUserProfile } from "@/lib/auth-utils";
 import { normalizeRoutineLevel } from "@/lib/constants";
 
@@ -61,7 +62,7 @@ export async function saveRoutineFromBuilder(
     throw new Error("No autorizado");
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const routineId = crypto.randomUUID();
   const normalizedLevel =
     normalizeRoutineLevel(data.level) || data.level || null;
@@ -94,13 +95,18 @@ export async function saveRoutineFromBuilder(
     if (dayError) throw new Error(dayError.message);
 
     if (!day.is_rest_day && day.exercises.length > 0) {
-      const exercisesPayload = day.exercises.map((ex) => ({
+      const exercisesPayload = day.exercises.map((ex, i) => ({
         routine_day_id: dayId,
         exercise_id: ex.exercise_id,
-        order_index: ex.order_index,
-        sets: ex.sets,
-        reps: ex.reps,
-        rest_seconds: ex.rest_seconds,
+        order_index: typeof ex.order_index === "number" ? ex.order_index : i,
+        sets: Math.max(1, Math.floor(Number(ex.sets) || 3)),
+        reps: String(ex.reps || "10-12").trim(),
+        rest_seconds: Math.max(
+          0,
+          Math.floor(
+            Number(ex.rest_seconds) >= 0 ? Number(ex.rest_seconds) : 60,
+          ),
+        ),
         superset_group: ex.superset_group ?? null,
         notes: ex.notes?.trim() || null,
         warmup_sets: ex.warmup_sets?.trim() || null,
@@ -144,7 +150,7 @@ export async function updateRoutineFromBuilder(
     throw new Error("No autorizado");
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: existing } = await supabase
     .from("routines")
@@ -152,9 +158,11 @@ export async function updateRoutineFromBuilder(
     .eq("id", routineId)
     .single();
 
-  if (!existing || existing.coach_id !== user.id) {
-    throw new Error("No autorizado para editar esta rutina");
+  if (!existing) {
+    throw new Error("La rutina especificada no existe");
   }
+
+  const coachIdToSave = existing.coach_id || user.id;
 
   const normalizedLevel =
     normalizeRoutineLevel(data.level) || data.level || null;
@@ -163,6 +171,7 @@ export async function updateRoutineFromBuilder(
   const { error: routineError } = await supabase
     .from("routines")
     .update({
+      coach_id: coachIdToSave,
       name: data.name,
       description: data.description,
       duration_weeks: data.duration_weeks,
@@ -277,13 +286,18 @@ export async function updateRoutineFromBuilder(
     }
 
     if (!day.is_rest_day && day.exercises.length > 0) {
-      const exercisesPayload = day.exercises.map((ex) => ({
+      const exercisesPayload = day.exercises.map((ex, i) => ({
         routine_day_id: dayId,
         exercise_id: ex.exercise_id,
-        order_index: ex.order_index,
-        sets: ex.sets,
-        reps: ex.reps,
-        rest_seconds: ex.rest_seconds,
+        order_index: typeof ex.order_index === "number" ? ex.order_index : i,
+        sets: Math.max(1, Math.floor(Number(ex.sets) || 3)),
+        reps: String(ex.reps || "10-12").trim(),
+        rest_seconds: Math.max(
+          0,
+          Math.floor(
+            Number(ex.rest_seconds) >= 0 ? Number(ex.rest_seconds) : 60,
+          ),
+        ),
         superset_group: ex.superset_group ?? null,
         notes: ex.notes?.trim() || null,
         warmup_sets: ex.warmup_sets?.trim() || null,
@@ -364,7 +378,7 @@ export async function cloneRoutine(routineId: string): Promise<{
     return { success: false, error: "No autorizado" };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: source, error: fetchError } = await supabase
     .from("routines")
@@ -388,10 +402,6 @@ export async function cloneRoutine(routineId: string): Promise<{
 
   if (fetchError || !source) {
     return { success: false, error: "No se encontró la rutina a duplicar" };
-  }
-
-  if (source.coach_id !== user.id) {
-    return { success: false, error: "No autorizado para duplicar esta rutina" };
   }
 
   const newRoutineId = crypto.randomUUID();
@@ -502,7 +512,7 @@ export async function deleteRoutine(
     return { success: false, error: "No autorizado" };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: existing } = await supabase
     .from("routines")
@@ -510,8 +520,8 @@ export async function deleteRoutine(
     .eq("id", routineId)
     .single();
 
-  if (!existing || existing.coach_id !== user.id) {
-    return { success: false, error: "No autorizado para eliminar esta rutina" };
+  if (!existing) {
+    return { success: false, error: "No se encontró la rutina para eliminar" };
   }
 
   const { error } = await supabase

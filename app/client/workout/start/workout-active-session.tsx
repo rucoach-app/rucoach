@@ -225,6 +225,10 @@ export function WorkoutActiveSession({
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const restoreDismissRef = useRef<"apply" | "discard" | null>(null);
 
+  // Timestamps absolutos para evitar desincronización o desaceleración en segundo plano/pantalla bloqueada
+  const restTargetTimestampRef = useRef<number | null>(null);
+  const restRemainingPausedRef = useRef<number | null>(null);
+
   const currentExercise = exercises[currentExerciseIndex];
   const currentSets = sets.get(currentExercise?.id?.toString()) || [];
 
@@ -256,6 +260,7 @@ export function WorkoutActiveSession({
   );
 
   useEffect(() => {
+    setElapsedSec(Math.floor((Date.now() - workoutStartTime) / 1000));
     const t = window.setInterval(() => {
       setElapsedSec(Math.floor((Date.now() - workoutStartTime) / 1000));
     }, 1000);
@@ -382,20 +387,65 @@ export function WorkoutActiveSession({
     });
   }, [currentExerciseIndex]);
 
+  // Actualización del temporizador de descanso basada en reloj de pared (wall-clock)
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isResting && restTime > 0 && !isPaused) {
-      interval = setInterval(() => {
-        setRestTime((t) => t - 1);
-      }, 1000);
-    } else if (restTime === 0 && isResting) {
-      setIsResting(false);
-      setIsRestMinimized(false);
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      toast.success("Descanso terminado. ¡Siguiente serie!");
-    }
-    return () => clearInterval(interval);
-  }, [isResting, restTime, isPaused]);
+    if (!isResting || isPaused) return;
+
+    const checkRest = () => {
+      const target = restTargetTimestampRef.current;
+      if (!target) return;
+      const diffMs = target - Date.now();
+      const remaining = Math.max(0, Math.ceil(diffMs / 1000));
+      setRestTime(remaining);
+
+      if (diffMs <= 0) {
+        restTargetTimestampRef.current = null;
+        restRemainingPausedRef.current = null;
+        setIsResting(false);
+        setIsRestMinimized(false);
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        toast.success("Descanso terminado. ¡Siguiente serie!");
+      }
+    };
+
+    checkRest();
+    const interval = window.setInterval(checkRest, 250);
+    return () => window.clearInterval(interval);
+  }, [isResting, isPaused]);
+
+  // Listener para sincronización instantánea al desbloquear móvil, encender pantalla o cambiar de pestaña
+  useEffect(() => {
+    const handleSync = () => {
+      // 1. Resincronizar tiempo de sesión transcurrido
+      setElapsedSec(Math.floor((Date.now() - workoutStartTime) / 1000));
+
+      // 2. Resincronizar descanso si está activo y no pausado
+      if (isResting && !isPaused && restTargetTimestampRef.current) {
+        const diffMs = restTargetTimestampRef.current - Date.now();
+        const remaining = Math.max(0, Math.ceil(diffMs / 1000));
+        setRestTime(remaining);
+
+        if (diffMs <= 0) {
+          restTargetTimestampRef.current = null;
+          restRemainingPausedRef.current = null;
+          setIsResting(false);
+          setIsRestMinimized(false);
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+          toast.success("Descanso terminado. ¡Siguiente serie!");
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleSync);
+    window.addEventListener("focus", handleSync);
+    window.addEventListener("pageshow", handleSync);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleSync);
+      window.removeEventListener("focus", handleSync);
+      window.removeEventListener("pageshow", handleSync);
+    };
+  }, [workoutStartTime, isResting, isPaused]);
 
   const checkForPR = (
     exerciseId: string,
@@ -492,6 +542,9 @@ export function WorkoutActiveSession({
         });
       }
       if (shouldRest) {
+        const target = Date.now() + restSec * 1000;
+        restTargetTimestampRef.current = target;
+        restRemainingPausedRef.current = null;
         setRestTime(restSec);
         setTotalRestTime(restSec);
         setIsPaused(false);
@@ -502,21 +555,74 @@ export function WorkoutActiveSession({
   };
 
   const adjustRestTime = (deltaSec: number) => {
-    setRestTime((prev) => {
-      const next = Math.max(0, prev + deltaSec);
+    if (isPaused) {
+      const current = restRemainingPausedRef.current ?? restTime;
+      const next = Math.max(0, current + deltaSec);
+      restRemainingPausedRef.current = next;
+      setRestTime(next);
       if (next > totalRestTime) {
         setTotalRestTime(next);
       }
       if (next === 0) {
         setIsResting(false);
         setIsRestMinimized(false);
+        restRemainingPausedRef.current = null;
       }
-      return next;
-    });
+      return;
+    }
+
+    const currentRemaining = restTargetTimestampRef.current
+      ? Math.max(
+          0,
+          Math.ceil((restTargetTimestampRef.current - Date.now()) / 1000),
+        )
+      : restTime;
+    const next = Math.max(0, currentRemaining + deltaSec);
+
+    if (next === 0) {
+      restTargetTimestampRef.current = null;
+      setRestTime(0);
+      setIsResting(false);
+      setIsRestMinimized(false);
+    } else {
+      restTargetTimestampRef.current = Date.now() + next * 1000;
+      setRestTime(next);
+      if (next > totalRestTime) {
+        setTotalRestTime(next);
+      }
+    }
+  };
+
+  const togglePauseRest = () => {
+    if (isPaused) {
+      const remaining = restRemainingPausedRef.current ?? restTime;
+      if (remaining > 0) {
+        restTargetTimestampRef.current = Date.now() + remaining * 1000;
+        restRemainingPausedRef.current = null;
+        setIsPaused(false);
+      } else {
+        setIsResting(false);
+        setIsPaused(false);
+      }
+    } else {
+      const currentRemaining = restTargetTimestampRef.current
+        ? Math.max(
+            0,
+            Math.ceil((restTargetTimestampRef.current - Date.now()) / 1000),
+          )
+        : restTime;
+      restRemainingPausedRef.current = currentRemaining;
+      restTargetTimestampRef.current = null;
+      setRestTime(currentRemaining);
+      setIsPaused(true);
+    }
   };
 
   const startManualRest = (seconds: number) => {
     const sec = Math.max(15, seconds || 90);
+    const target = Date.now() + sec * 1000;
+    restTargetTimestampRef.current = target;
+    restRemainingPausedRef.current = null;
     setTotalRestTime(sec);
     setRestTime(sec);
     setIsPaused(false);
@@ -702,8 +808,11 @@ export function WorkoutActiveSession({
   };
 
   const skipRest = () => {
+    restTargetTimestampRef.current = null;
+    restRemainingPausedRef.current = null;
     setIsResting(false);
     setIsRestMinimized(false);
+    setIsPaused(false);
     setRestTime(0);
   };
 
@@ -1023,8 +1132,12 @@ export function WorkoutActiveSession({
             <span>Minimizar</span>
           </button>
 
-          <div className="relative flex flex-col items-center">
-            <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-full animate-pulse" />
+          <div className="relative flex flex-col items-center justify-center p-2">
+            {/* Difusión suave y atmosférica sin artefactos de recorte cuadrado */}
+            <div
+              className="absolute -inset-10 rounded-full bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.22)_0%,hsl(var(--primary)/0.07)_45%,transparent_70%)] blur-2xl pointer-events-none"
+              aria-hidden="true"
+            />
             <CircularProgress
               value={restTime}
               max={totalRestTime}
@@ -1061,8 +1174,8 @@ export function WorkoutActiveSession({
               type="button"
               variant="secondary"
               size="icon"
-              onClick={() => setIsPaused(!isPaused)}
-              aria-label="Pausar/Reanudar temporizador"
+              onClick={togglePauseRest}
+              aria-label={isPaused ? "Reanudar temporizador" : "Pausar temporizador"}
               className="size-14 rounded-3xl bg-secondary/90 transition-all hover:bg-secondary sm:size-16"
             >
               {isPaused ? (

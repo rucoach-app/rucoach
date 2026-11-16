@@ -366,7 +366,7 @@ function ThreadPane({
   return (
     <div className="flex w-full min-h-0 flex-1 flex-col relative overflow-hidden">
       {/* ─── Thread header ─── */}
-      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x transition-all">
+      <header className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background safe-area-x transition-all">
         <div
           className={cn(
             'flex items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 w-full',
@@ -1052,7 +1052,7 @@ export function ChatView({
         className="flex h-full w-full min-h-0 flex-1 flex-col relative overflow-hidden"
       >
         {/* Consistent AdminPageHeader-style header */}
-        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center">
+        <header className="shrink-0 border-b border-border/50 bg-background safe-area-x flex items-center">
           <div className="flex min-h-[54px] sm:min-h-[96px] items-center gap-3 sm:gap-4 px-4 py-2 sm:px-6 md:px-8 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">
@@ -1133,7 +1133,7 @@ export function ChatView({
         aria-label="Lista de conversaciones"
       >
         {/* Inbox header — matches AdminPageHeader structure */}
-        <header className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center">
+        <header className="shrink-0 border-b border-border/50 bg-background safe-area-x flex items-center">
           <div className="flex min-h-[54px] sm:min-h-[96px] items-center gap-3 sm:gap-4 px-4 py-2 sm:px-6 sm:py-0 w-full">
             <PageHeaderLeadingIcon />
             <div className="min-w-0 flex flex-col justify-center">

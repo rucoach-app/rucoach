@@ -25,7 +25,7 @@ export function AdminPageHeaderSkeleton({
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur-xl safe-area-x flex items-center',
+        'sticky top-0 z-50 border-b border-border/50 bg-background safe-area-x flex items-center',
         className,
       )}
       aria-hidden

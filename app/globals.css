@@ -365,10 +365,25 @@ html {
  * blanco en la barra de estado, por lo que .ios-status-bar-cap mantiene fondo oscuro incluso en Tema Claro.
  */
 @media all and (display-mode: standalone) {
+  html {
+    height: 100%;
+    /* Pinta el área bajo el notch/home-indicator con el color de la app (nunca blanco/negro del sistema) */
+    background-color: var(--background);
+  }
   html,
   body {
     min-height: 100vh;
     overscroll-behavior: none;
+  }
+  /* Fondo opaco extendido bajo la barra inferior: evita ver el contenido del main pasar por debajo del home indicator */
+  [data-mobile-bottom-nav="true"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    height: 80px;
+    background: var(--card);
+    pointer-events: none;
   }
   .min-h-dvh,
   .min-h-svh {

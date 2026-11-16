@@ -151,15 +151,27 @@ html {
   touch-action: manipulation;
 }
 
+/*
+ * Insets de pantalla (notch / Dynamic Island / home indicator).
+ * --inset-*-fb los rellena un script inline (app/layout.tsx) SOLO si env() devuelve 0 en un iPhone con notch
+ * instalado como PWA; en cualquier otro caso se usa env() nativo.
+ */
+:root {
+  --inset-top: max(env(safe-area-inset-top, 0px), var(--inset-top-fb, 0px));
+  --inset-bottom: max(env(safe-area-inset-bottom, 0px), var(--inset-bottom-fb, 0px));
+  /* Barra inferior compacta: 52px + ~45% del home indicator (el indicador flota ~8px sobre el borde) */
+  --bottom-nav-h: calc(52px + var(--inset-bottom) * 0.45);
+}
+
 /* Safe area para todos los tamaños de iPhone (SE, Mini, Notch, Dynamic Island, Plus, Pro Max) */
 @utility safe-area-pt {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--inset-top);
 }
 @utility safe-area-header-pt {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--inset-top);
 }
 @utility safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--inset-bottom);
 }
 @utility safe-area-pl {
   padding-left: env(safe-area-inset-left, 0px);
@@ -172,16 +184,16 @@ html {
   padding-right: env(safe-area-inset-right, 0px);
 }
 @utility pb-safe-area {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--inset-bottom);
 }
 @utility pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--inset-bottom);
 }
 @utility safe-area-inset-top {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--inset-top);
 }
 @utility safe-area-inset-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--inset-bottom);
 }
 
 @utility no-scrollbar {

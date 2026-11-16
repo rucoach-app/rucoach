@@ -95,6 +95,11 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var d=document.documentElement;var sa=navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);if(!sa)return;d.classList.add('is-standalone');var p=document.createElement('div');p.style.cssText='position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)';d.appendChild(p);var cs=getComputedStyle(p);var t=parseFloat(cs.paddingTop)||0;var b=parseFloat(cs.paddingBottom)||0;d.removeChild(p);if(t===0&&/iPhone/.test(navigator.userAgent)){var h=Math.max(screen.width,screen.height);if(h>=812){var m={812:44,844:47,852:59,874:62,896:48,926:47,932:59,956:62};d.style.setProperty('--inset-top-fb',(m[h]||47)+'px');d.style.setProperty('--inset-bottom-fb','34px')}}}catch(e){}})();`,
+          }}
+        />
         <link rel="alternate" href="https://rucoach.app" hrefLang="es" />
         <PersonSchema />
         <OrganizationSchema />

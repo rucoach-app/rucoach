@@ -20,16 +20,16 @@ export function AdminLayoutShell({ children }: { children: React.ReactNode }) {
       <SidebarInset className="min-h-0 flex-1 overflow-hidden">
         <div
           aria-hidden="true"
-          className="ios-status-bar-cap h-[env(safe-area-inset-top,0px)] w-full shrink-0 bg-background"
+          className="ios-status-bar-cap relative z-50 h-[env(safe-area-inset-top,0px)] w-full shrink-0 bg-background"
         />
         <div
           id="main-content"
           tabIndex={-1}
           className={cn(
-            'min-h-0 flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0',
+            'relative z-0 min-h-0 flex-1 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0 [isolation:isolate]',
             isMessages
               ? 'flex flex-col overflow-hidden'
-              : 'overflow-auto overscroll-y-contain scroll-pt-[4.5rem] sm:scroll-pt-[calc(6rem+1rem)]',
+              : 'overflow-y-auto overflow-x-hidden overscroll-y-contain scroll-pt-[4.5rem] sm:scroll-pt-[calc(6rem+1rem)]',
           )}
         >
           {children}

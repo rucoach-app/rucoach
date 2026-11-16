@@ -183,7 +183,7 @@ export function ClientDashboardContent({
         <section className="order-1 xl:order-2 flex min-w-0 flex-col gap-4 sm:gap-6 lg:gap-8 lg:col-span-12 xl:col-span-8">
           <div className="flex flex-col gap-3.5 sm:gap-4">
             {weekDaysStatus.length > 0 && (
-              <Card className="overflow-hidden border-border/80 shadow-sm ring-1 ring-primary/5 rounded-3xl bg-card/60 backdrop-blur-sm">
+              <Card className="overflow-hidden border-border/80 shadow-sm ring-1 ring-primary/5 rounded-3xl bg-card/90">
                 <CardContent className="p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-4">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">

@@ -368,6 +368,7 @@ html {
   html,
   body {
     min-height: 100vh;
+    overscroll-behavior: none;
   }
   .min-h-dvh,
   .min-h-svh {
@@ -378,9 +379,6 @@ html {
   }
   .max-h-dvh {
     max-height: 100vh;
-  }
-  html:not(.dark) .ios-status-bar-cap {
-    background-color: oklch(0.141 0.005 285.823);
   }
 }
 

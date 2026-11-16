@@ -479,7 +479,7 @@ function ThreadPane({
             <div
               className={cn(
                 'no-scrollbar flex gap-2 overflow-x-auto md:flex-wrap pb-0.5',
-                isKeyboardOpen && input.trim().length > 0 && 'hidden md:flex',
+                isKeyboardOpen && 'hidden md:flex',
               )}
               aria-label="Respuestas rápidas"
             >
@@ -703,10 +703,10 @@ export function ChatView({
         return
       }
 
-      const vvTop = vv ? vv.offsetTop : 0
       const vvRawHeight = vv ? vv.height : window.innerHeight
       const heightDiff = window.innerHeight - Math.round(vvRawHeight)
-      const keyboardActive = heightDiff > 110 || isInputFocused
+      const visualKeyboardShrunk = heightDiff > 110
+      const keyboardActive = visualKeyboardShrunk || isInputFocused
 
       setIsKeyboardOpen(keyboardActive)
       if (keyboardActive) {
@@ -714,18 +714,25 @@ export function ChatView({
         if (window.scrollY !== 0) {
           window.scrollTo(0, 0)
         }
-        const rootTop = chatRootRef.current
-          ? Math.max(0, chatRootRef.current.getBoundingClientRect().top)
-          : 0
-        const availableHeight = Math.max(
-          240,
-          Math.round(vvTop + vvRawHeight - rootTop),
-        )
-        setMobileViewportHeight(availableHeight)
+        if (visualKeyboardShrunk) {
+          const rootTop = chatRootRef.current
+            ? Math.max(0, chatRootRef.current.getBoundingClientRect().top)
+            : 0
+          const availableHeight = Math.max(
+            220,
+            Math.round(vvRawHeight - rootTop),
+          )
+          setMobileViewportHeight(availableHeight)
+        } else {
+          setMobileViewportHeight(null)
+        }
         requestAnimationFrame(() => scrollToEnd(false))
       } else {
         delete document.documentElement.dataset.chatKeyboardOpen
         setMobileViewportHeight(null)
+        if (window.scrollY !== 0) {
+          window.scrollTo(0, 0)
+        }
       }
     }
 
@@ -1026,6 +1033,7 @@ export function ChatView({
     () =>
       isKeyboardOpen && mobileViewportHeight
         ? {
+            flex: 'none' as const,
             height: `${mobileViewportHeight}px`,
             maxHeight: `${mobileViewportHeight}px`,
           }

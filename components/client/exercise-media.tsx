@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Dumbbell } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -13,12 +13,22 @@ type ExerciseMediaProps = {
   imgClassName?: string
   /** Square thumb vs fill parent */
   variant?: 'thumb' | 'fill'
+  loading?: 'lazy' | 'eager'
 }
 
 /**
- * GIF / imagen de ejercicio con reserva de espacio (CLS), lazy decode y fallback si falla la URL o no hay archivo en /public.
+ * GIF / imagen de ejercicio con reserva de espacio (CLS), decode asíncrono y fallback si falla la URL o no hay archivo en /public.
  */
-export function ExerciseMedia({ src, fallbackSrc, alt, className, imgClassName, variant = 'fill' }: ExerciseMediaProps) {
+export function ExerciseMedia({
+  src,
+  fallbackSrc,
+  alt,
+  className,
+  imgClassName,
+  variant = 'fill',
+  loading = 'lazy',
+}: ExerciseMediaProps) {
+  const candidatesKey = `${src ?? ''}|${fallbackSrc ?? ''}`
   const candidates = useMemo(
     () => [src, fallbackSrc].filter((u): u is string => !!u && u.trim().length > 0),
     [src, fallbackSrc],
@@ -26,14 +36,29 @@ export function ExerciseMedia({ src, fallbackSrc, alt, className, imgClassName, 
   const [sourceIndex, setSourceIndex] = useState(0)
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(candidates.length === 0)
+  const imgRef = useRef<HTMLImageElement | null>(null)
   const currentSrc = candidates[sourceIndex]
 
-  // Reset media lifecycle when source changes (exercise switch, fallback recoveries).
   useEffect(() => {
     setSourceIndex(0)
-    setLoaded(false)
     setFailed(candidates.length === 0)
-  }, [candidates])
+  }, [candidatesKey, candidates.length])
+
+  // Sincronizar estado de carga cuando cambia la URL activa (incluye imágenes ya en caché donde onLoad no vuelve a disparar).
+  useEffect(() => {
+    if (!currentSrc) {
+      setLoaded(false)
+      setFailed(true)
+      return
+    }
+    setFailed(false)
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth > 0) {
+      setLoaded(true)
+    } else {
+      setLoaded(false)
+    }
+  }, [currentSrc])
 
   if (!currentSrc || failed) {
     return (
@@ -60,8 +85,8 @@ export function ExerciseMedia({ src, fallbackSrc, alt, className, imgClassName, 
       {!loaded && (
         <Skeleton className="absolute inset-0 z-10 rounded-none" aria-hidden />
       )}
-      { }
       <img
+        ref={imgRef}
         src={currentSrc}
         alt={alt}
         width={variant === 'thumb' ? 128 : undefined}
@@ -72,16 +97,17 @@ export function ExerciseMedia({ src, fallbackSrc, alt, className, imgClassName, 
           'mix-blend-multiply dark:mix-blend-normal',
           imgClassName,
         )}
-        loading="lazy"
+        loading={loading}
         decoding="async"
         onLoad={() => setLoaded(true)}
         onError={() => {
           if (sourceIndex < candidates.length - 1) {
             setSourceIndex((idx) => idx + 1)
+            setLoaded(false)
           } else {
             setFailed(true)
+            setLoaded(false)
           }
-          setLoaded(false)
         }}
       />
     </div>

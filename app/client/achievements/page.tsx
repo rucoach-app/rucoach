@@ -311,20 +311,23 @@ export default async function ClientAchievementsPage() {
                       Progresión escalonada de Bronce a Élite
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
                     {difficultyBreakdown.map(({ meta, unlocked, total, percent }) => (
                       <div
                         key={meta.id}
-                        className="flex flex-col gap-2 rounded-2xl border border-border/50 bg-background/60 p-3.5"
+                        className="flex min-w-0 flex-col gap-2 rounded-2xl border border-border/50 bg-background/60 p-3 sm:p-3.5"
                       >
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center justify-between gap-1.5">
                           <Badge
                             variant="outline"
-                            className={cn("text-[10px] font-black", meta.badgeClass)}
+                            className={cn(
+                              "min-w-0 max-w-full truncate px-2 py-0.5 text-[10px] font-black",
+                              meta.badgeClass,
+                            )}
                           >
                             {meta.fullLabel}
                           </Badge>
-                          <span className="text-xs font-black tabular-nums text-foreground">
+                          <span className="shrink-0 text-xs font-black tabular-nums text-foreground">
                             {unlocked}/{total}
                           </span>
                         </div>

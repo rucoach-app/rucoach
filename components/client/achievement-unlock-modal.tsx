@@ -53,8 +53,8 @@ export function AchievementUnlockModal({
 
   return (
     <Dialog open={achievements.length > 0} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md rounded-3xl border-none bg-gradient-to-b from-background to-muted/50 shadow-2xl shadow-primary/20 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,color-mix(in_oklch,var(--primary)_15%,transparent),transparent)] pointer-events-none" />
+      <DialogContent className="sm:max-w-md rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl shadow-primary/20 overflow-hidden overscroll-contain">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_115%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent_65%)] pointer-events-none" />
         
         <DialogHeader className="relative z-10 pt-6">
           <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-bounce">

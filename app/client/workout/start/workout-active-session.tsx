@@ -349,14 +349,42 @@ export function WorkoutActiveSession({
   ]);
 
   useEffect(() => {
-    if (!isDirty) return;
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
+    if (draftCheckpoint !== "ready") return;
+    const flushDraftNow = () => {
+      if (!isDirty) return;
+      try {
+        const payload: WorkoutDraftV1 = {
+          v: 1,
+          routineDayId: routineDay.id,
+          currentExerciseIndex,
+          workoutNote,
+          sets: Object.fromEntries(sets),
+          workoutStartTime,
+        };
+        localStorage.setItem(draftKey, JSON.stringify(payload));
+      } catch {
+        // quota / private mode
+      }
     };
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [isDirty]);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flushDraftNow();
+    };
+    window.addEventListener("pagehide", flushDraftNow);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("pagehide", flushDraftNow);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [
+    draftCheckpoint,
+    draftKey,
+    isDirty,
+    routineDay.id,
+    currentExerciseIndex,
+    workoutNote,
+    sets,
+    workoutStartTime,
+  ]);
 
   useEffect(() => {
     if (!currentExercise) return;
@@ -1463,6 +1491,7 @@ export function WorkoutActiveSession({
                                 src={ex?.gif_url || ex?.image_url}
                                 alt=""
                                 variant="thumb"
+                                loading="eager"
                                 className="size-full"
                                 imgClassName="object-cover"
                               />
@@ -1704,7 +1733,9 @@ export function WorkoutActiveSession({
                     </span>
                   ) : null}
                   <span className="text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Reps
+                    {/fallo|amrap|max/i.test(currentExercise.reps ?? "")
+                      ? "Reps (Al fallo)"
+                      : "Reps"}
                   </span>
                   <span className="sr-only">Acciones</span>
                 </div>
@@ -1862,7 +1893,9 @@ export function WorkoutActiveSession({
 
                             <div className="flex min-w-0 flex-col gap-1">
                               <label className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground/70 pl-1">
-                                Repeticiones
+                                {/fallo|amrap|max/i.test(currentExercise.reps ?? "")
+                                  ? "Reps logradas (Al fallo)"
+                                  : "Repeticiones"}
                               </label>
                               <div className="relative flex min-w-0 items-center">
                                 <Button
@@ -1879,7 +1912,7 @@ export function WorkoutActiveSession({
                                   type="number"
                                   inputMode="numeric"
                                   aria-label="Repeticiones"
-                                  value={set.reps}
+                                  value={Number.isFinite(set.reps) ? set.reps : 10}
                                   onChange={(e) => {
                                     const val = sanitizeRepsCount(e.target.value, 1);
                                     setSets((prev) => {
@@ -2000,7 +2033,7 @@ export function WorkoutActiveSession({
                               type="number"
                               inputMode="numeric"
                               aria-label="Repeticiones"
-                              value={set.reps}
+                              value={Number.isFinite(set.reps) ? set.reps : 10}
                               onChange={(e) => {
                                 const val = sanitizeRepsCount(e.target.value, 1);
                                 setSets((prev) => {

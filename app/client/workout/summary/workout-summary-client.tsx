@@ -342,9 +342,9 @@ export function WorkoutSummaryClient({
   const titleRoutine = routineName || "Tu rutina";
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
-        <section className="flex flex-col gap-6 lg:col-span-7">
+    <div className="flex min-w-0 flex-col gap-8">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-12 lg:items-start">
+        <section className="flex min-w-0 flex-col gap-6 lg:col-span-7">
           {/* Main Stats Card */}
           <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl bg-card/50 transition-all hover:bg-card">
             <CardHeader className="pb-6 pt-6 px-6 border-b bg-muted/5">
@@ -479,14 +479,14 @@ export function WorkoutSummaryClient({
                 groupedLogs.map((group, idx) => (
                   <div
                     key={group.key}
-                    className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-background/60 p-4"
+                    className="flex min-w-0 flex-col gap-3 rounded-2xl border border-border/50 bg-background/60 p-3.5 sm:p-4"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-black text-primary tabular-nums">
+                    <div className="flex min-w-0 items-start justify-between gap-2">
+                      <div className="flex min-w-0 items-start gap-2.5">
+                        <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-black text-primary tabular-nums">
                           {idx + 1}
                         </span>
-                        <h4 className="truncate text-sm font-black capitalize tracking-tight text-foreground">
+                        <h4 className="min-w-0 line-clamp-2 break-words text-sm font-black capitalize leading-snug tracking-tight text-foreground">
                           {group.name}
                         </h4>
                       </div>
@@ -558,7 +558,7 @@ export function WorkoutSummaryClient({
           </div>
         </section>
 
-        <aside className="flex flex-col gap-6 lg:sticky lg:top-[calc(96px+1.5rem)] lg:col-span-5 lg:self-start">
+        <aside className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-[calc(96px+1.5rem)] lg:col-span-5 lg:self-start">
           {/* What you just trained (open-gym FinishSummary BodyMap) */}
           {groupedLogs.length > 0 && (
             <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl bg-card/50 transition-all hover:bg-card">

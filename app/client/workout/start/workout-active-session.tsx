@@ -1190,139 +1190,143 @@ export function WorkoutActiveSession({
 
       {/* Fullscreen Rest Timer Modal */}
       {isResting && !isRestMinimized && (
-        <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background/85 p-4 backdrop-blur-2xl animate-in fade-in duration-300 sm:p-8">
-          <div className="absolute inset-0 bg-linear-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+        <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background p-6 pt-[max(1.5rem,calc(var(--inset-top)+0.75rem))] pb-[max(1.5rem,calc(var(--inset-bottom)+0.75rem))] animate-in fade-in duration-200 sm:p-8">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,color-mix(in_oklch,var(--primary)_14%,transparent)_0%,transparent_65%)]"
+            aria-hidden="true"
+          />
 
           {/* Minimize button at top right */}
           <button
             type="button"
             onClick={() => setIsRestMinimized(true)}
-            className="absolute top-[max(1rem,calc(env(safe-area-inset-top,0px)+0.5rem))] right-[max(1rem,env(safe-area-inset-right,1rem))] sm:top-6 sm:right-6 z-20 flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/80 px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
+            className="absolute top-[max(1rem,calc(var(--inset-top)+0.5rem))] right-[max(1rem,env(safe-area-inset-right,1rem))] sm:top-6 sm:right-6 z-20 flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-foreground shadow-md hover:bg-secondary transition-all"
             aria-label="Minimizar temporizador de descanso"
           >
-            <Minimize2 className="size-3.5" />
+            <Minimize2 className="size-3.5 text-primary" />
             <span>Minimizar</span>
           </button>
 
-          <div className="relative flex flex-col items-center justify-center p-2">
-            {/* Difusión suave y atmosférica sin artefactos de recorte cuadrado */}
-            <div
-              className="absolute -inset-10 rounded-full bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.22)_0%,hsl(var(--primary)/0.07)_45%,transparent_70%)] blur-2xl pointer-events-none"
-              aria-hidden="true"
-            />
-            <CircularProgress
-              value={restTime}
-              max={totalRestTime}
-              size={220}
-              strokeWidth={5}
-              className="relative text-primary"
-            >
-              <div className="flex flex-col items-center justify-center gap-1.5">
-                <span className="text-xs font-black uppercase tracking-[0.28em] text-primary/70">
-                  Descanso
-                </span>
-                <span className="text-5xl font-black tabular-nums tracking-tighter sm:text-6xl">
-                  {restTime >= 60 ? formatElapsed(restTime) : restTime}
-                </span>
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                  {restTime >= 60 ? `${restTime}s restantes` : "Segundos"}
-                </span>
-              </div>
-            </CircularProgress>
-          </div>
+          <div className="relative z-10 flex w-full max-w-sm flex-col items-center rounded-3xl border border-border/70 bg-card/95 p-6 shadow-2xl sm:p-8">
+            <div className="relative flex flex-col items-center justify-center p-2">
+              <div
+                className="pointer-events-none absolute -inset-6 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklch,var(--primary)_18%,transparent)_0%,transparent_70%)] blur-xl"
+                aria-hidden="true"
+              />
+              <CircularProgress
+                value={restTime}
+                max={totalRestTime}
+                size={220}
+                strokeWidth={6}
+                className="relative text-primary"
+              >
+                <div className="flex flex-col items-center justify-center gap-1.5">
+                  <span className="text-xs font-black uppercase tracking-[0.28em] text-primary">
+                    Descanso
+                  </span>
+                  <span className="text-5xl font-black tabular-nums tracking-tighter text-foreground sm:text-6xl">
+                    {restTime >= 60 ? formatElapsed(restTime) : restTime}
+                  </span>
+                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                    {restTime >= 60 ? `${restTime}s restantes` : "Segundos"}
+                  </span>
+                </div>
+              </CircularProgress>
+            </div>
 
-          {/* Quick Rest Adjustment + Play/Pause Controls */}
-          <div className="relative z-10 mt-8 flex items-center justify-center gap-3 sm:mt-10 sm:gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => adjustRestTime(-15)}
-              aria-label="Restar 15 segundos de descanso"
-              className="h-12 rounded-2xl border-border/80 bg-card/80 px-4 text-xs font-black tabular-nums hover:bg-secondary"
-            >
-              -15s
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon"
-              onClick={togglePauseRest}
-              aria-label={isPaused ? "Reanudar temporizador" : "Pausar temporizador"}
-              className="size-14 rounded-3xl bg-secondary/90 transition-all hover:bg-secondary sm:size-16"
-            >
-              {isPaused ? (
-                <Play className="size-7 fill-current" />
+            {/* Quick Rest Adjustment + Play/Pause Controls */}
+            <div className="relative z-10 mt-6 flex items-center justify-center gap-3 sm:mt-8 sm:gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => adjustRestTime(-15)}
+                aria-label="Restar 15 segundos de descanso"
+                className="h-12 rounded-2xl border-border bg-secondary px-4 text-xs font-black tabular-nums text-foreground shadow-xs hover:bg-secondary/80"
+              >
+                -15s
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                onClick={togglePauseRest}
+                aria-label={isPaused ? "Reanudar temporizador" : "Pausar temporizador"}
+                className="size-14 rounded-3xl border border-border bg-secondary text-foreground shadow-sm transition-all hover:bg-secondary/80 sm:size-16"
+              >
+                {isPaused ? (
+                  <Play className="size-7 fill-current" />
+                ) : (
+                  <Pause className="size-7 fill-current" />
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => adjustRestTime(30)}
+                aria-label="Sumar 30 segundos de descanso"
+                className="h-12 rounded-2xl border-border bg-secondary px-4 text-xs font-black tabular-nums text-foreground shadow-xs hover:bg-secondary/80"
+              >
+                +30s
+              </Button>
+            </div>
+
+            <div className="relative z-10 mt-5 flex w-full flex-col items-stretch gap-2.5 sm:mt-6">
+              <Button
+                type="button"
+                variant="default"
+                size="lg"
+                onClick={() => {
+                  skipRest();
+                  if (
+                    allSetsCompleted &&
+                    currentExerciseIndex < exercises.length - 1 &&
+                    !nextIsSameSuperset(currentExerciseIndex)
+                  ) {
+                    nextExercise();
+                  }
+                }}
+                className="h-13 w-full rounded-2xl bg-primary px-6 font-black uppercase tracking-widest text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:scale-[1.01] active:scale-95 sm:h-14"
+              >
+                <SkipForward className="mr-2.5 size-5" />
+                {allSetsCompleted &&
+                currentExerciseIndex < exercises.length - 1 &&
+                !nextIsSameSuperset(currentExerciseIndex)
+                  ? "Saltar e ir al siguiente"
+                  : "Saltar descanso"}
+              </Button>
+            </div>
+
+            <div className="relative z-10 mt-6 w-full rounded-2xl border border-border/60 bg-background/80 px-4 py-3 text-center">
+              {completedSetsCount === 0 ? (
+                <>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                    Preparación previa
+                  </p>
+                  <p className="text-base font-black tracking-tight text-foreground">
+                    Serie 1 de {currentSets.length}
+                  </p>
+                </>
+              ) : allSetsCompleted && currentExerciseIndex < exercises.length - 1 ? (
+                <>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                    Ejercicio completado · Siguiente
+                  </p>
+                  <p className="text-base font-black tracking-tight text-foreground line-clamp-2">
+                    {exName(exercises[currentExerciseIndex + 1]?.exercises)}
+                  </p>
+                </>
               ) : (
-                <Pause className="size-7 fill-current" />
+                <>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                    Serie {completedSetsCount} completada
+                  </p>
+                  <p className="text-base font-black tracking-tight text-foreground underline decoration-primary decoration-2 underline-offset-4">
+                    Próxima: Serie {Math.min(completedSetsCount + 1, currentSets.length)} de{" "}
+                    {currentSets.length}
+                  </p>
+                </>
               )}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => adjustRestTime(30)}
-              aria-label="Sumar 30 segundos de descanso"
-              className="h-12 rounded-2xl border-border/80 bg-card/80 px-4 text-xs font-black tabular-nums hover:bg-secondary"
-            >
-              +30s
-            </Button>
-          </div>
-
-          <div className="relative z-10 mt-4 flex w-full max-w-xs flex-col items-stretch gap-2.5 sm:mt-6">
-            <Button
-              type="button"
-              variant="default"
-              size="lg"
-              onClick={() => {
-                skipRest();
-                if (
-                  allSetsCompleted &&
-                  currentExerciseIndex < exercises.length - 1 &&
-                  !nextIsSameSuperset(currentExerciseIndex)
-                ) {
-                  nextExercise();
-                }
-              }}
-              className="h-13 w-full rounded-2xl bg-primary px-6 font-black uppercase tracking-widest text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:scale-[1.01] active:scale-95 sm:h-14"
-            >
-              <SkipForward className="mr-2.5 size-5" />
-              {allSetsCompleted &&
-              currentExerciseIndex < exercises.length - 1 &&
-              !nextIsSameSuperset(currentExerciseIndex)
-                ? "Saltar e ir al siguiente"
-                : "Saltar descanso"}
-            </Button>
-          </div>
-
-          <div className="mt-8 text-center relative z-10 max-w-xs px-4">
-            {completedSetsCount === 0 ? (
-              <>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 mb-1">
-                  Preparación previa
-                </p>
-                <p className="text-lg font-black tracking-tight text-foreground">
-                  Serie 1 de {currentSets.length}
-                </p>
-              </>
-            ) : allSetsCompleted && currentExerciseIndex < exercises.length - 1 ? (
-              <>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 mb-1">
-                   Ejercicio completado · Siguiente
-                </p>
-                <p className="text-base font-black tracking-tight text-foreground line-clamp-2">
-                  {exName(exercises[currentExerciseIndex + 1]?.exercises)}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 mb-1">
-                  Serie {completedSetsCount} completada
-                </p>
-                <p className="text-lg font-black tracking-tight underline decoration-primary decoration-2 underline-offset-4">
-                  Próxima: Serie {Math.min(completedSetsCount + 1, currentSets.length)} de{" "}
-                  {currentSets.length}
-                </p>
-              </>
-            )}
+            </div>
           </div>
         </div>
       )}

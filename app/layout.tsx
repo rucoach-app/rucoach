@@ -39,20 +39,19 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Rodrigo Urbina" }],
   openGraph: {
-    title: "RU Coach | Rodrigo Urbina - Entrenamiento Personal Premium",
+    title: "RU Coach | Entrenamiento Personalizado de Élite",
     description:
-      "La plataforma de fitness definitiva para el seguimiento de entrenamiento de élite, diseñada por Rodrigo Urbina.",
+      "Rutinas a tu medida, control de cargas, récords personales y seguimiento continuo con Rodrigo Urbina.",
     type: "website",
     url: "https://rucoach.app",
     siteName: "RU Coach",
-    images: [
-      {
-        url: "/android-chrome-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "RU Coach Premium Fitness",
-      },
-    ],
+    locale: "es_MX",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RU Coach | Entrenamiento Personalizado de Élite",
+    description:
+      "Rutinas a tu medida, control de cargas, récords personales y seguimiento continuo con Rodrigo Urbina.",
   },
   icons: {
     icon: [

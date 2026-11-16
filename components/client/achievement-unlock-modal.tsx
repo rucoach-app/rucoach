@@ -30,11 +30,22 @@ export function AchievementUnlockModal({
   if (!current) return null
 
   const handleShare = async () => {
-    const shareText = `🏆 ¡Acabo de desbloquear el logro "${current.name}" (+${current.xp_reward} XP) en RU Coach! ${current.description ?? ''}`.trim()
+    const shareText = [
+      `🏆 *Nuevo logro desbloqueado en RU Coach*`,
+      ``,
+      `• *Logro:* ${current.name}`,
+      `• *Recompensa:* +${current.xp_reward} XP`,
+      current.description ? `• *Meta:* ${current.description}` : null,
+      ``,
+      `Seguimos sumando resultados con disciplina. 💪`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join('\n')
+
     if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       try {
         await navigator.share({
-          title: `Logro Desbloqueado: ${current.name}`,
+          title: `Logro desbloqueado: ${current.name} | RU Coach`,
           text: shareText,
           url: window.location.origin,
         })
@@ -44,8 +55,8 @@ export function AchievementUnlockModal({
       }
     }
     try {
-      await navigator.clipboard.writeText(shareText)
-      toast.success('¡Logro copiado al portapapeles!')
+      await navigator.clipboard.writeText(`${shareText}\n${window.location.origin}`)
+      toast.success('¡Mensaje copiado al portapapeles!')
     } catch {
       toast.error('No se pudo copiar al portapapeles')
     }

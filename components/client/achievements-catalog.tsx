@@ -98,19 +98,32 @@ export function AchievementsCatalog({
   )
 
   const handleShare = async (achievement: Achievement) => {
-    const shareText = `¡Desbloqueé el hito "${achievement.name}" (+${achievement.xp_reward} XP) entrenando en RU Coach! — ${achievement.description}`
+    const origin =
+      typeof window !== 'undefined' ? window.location.origin : 'https://rucoach.app'
+    const shareText = [
+      `🏅 *Hito alcanzado en RU Coach*`,
+      ``,
+      `• *Logro:* ${achievement.name}`,
+      `• *Recompensa:* +${achievement.xp_reward} XP`,
+      achievement.description ? `• *Meta:* ${achievement.description}` : null,
+      ``,
+      `Entrenamiento personalizado y progreso medible. 💪`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join('\n')
+
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({
-          title: `Hito desbloqueado: ${achievement.name}`,
+          title: `Hito desbloqueado: ${achievement.name} | RU Coach`,
           text: shareText,
-          url: window.location.href,
+          url: origin,
         })
         return
       }
       if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(shareText)
-        toast.success('¡Logro copiado al portapapeles para compartir!')
+        await navigator.clipboard.writeText(`${shareText}\n${origin}`)
+        toast.success('¡Mensaje copiado al portapapeles para compartir!')
       }
     } catch (err) {
       if ((err as Error)?.name !== 'AbortError') {

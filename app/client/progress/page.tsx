@@ -362,14 +362,51 @@ export default async function ClientProgressPage() {
       ? "Sin datos aún · completa entrenos para ver volumen y curvas por ejercicio."
       : `${sessionCountForChart} ${sessionCountForChart === 1 ? "sesión" : "sesiones"} en volumen · ${exerciseTrackCount} ${exerciseTrackCount === 1 ? "ejercicio en seguimiento" : "ejercicios en seguimiento"}`;
 
+  const totalVolumeAllSessions = Math.round(
+    volumeSeries.reduce((acc, v) => acc + v, 0),
+  );
+
   return (
     <>
       <ClientStackPageHeader title="Progreso" subtitle={progressSubtitle} />
 
       <div
-        className={`${CLIENT_DATA_PAGE_SHELL} grid gap-6 lg:grid-cols-12 lg:items-start`}
+        className={`${CLIENT_DATA_PAGE_SHELL} grid min-w-0 gap-6 lg:grid-cols-12 lg:items-start`}
       >
-        <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
+        {/* Resumen rápido móvil/desktop */}
+        <section
+          className="grid min-w-0 grid-cols-3 gap-2.5 sm:gap-4 lg:col-span-12"
+          aria-label="Resumen de progreso"
+        >
+          <div className="flex min-w-0 flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-3.5 shadow-xs sm:p-5">
+            <span className="truncate text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Sesiones
+            </span>
+            <p className="mt-1.5 text-xl font-black tabular-nums tracking-tight text-foreground sm:text-3xl">
+              {sessionCountForChart}
+            </p>
+          </div>
+          <div className="flex min-w-0 flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-3.5 shadow-xs sm:p-5">
+            <span className="truncate text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              PRs activos
+            </span>
+            <p className="mt-1.5 text-xl font-black tabular-nums tracking-tight text-primary sm:text-3xl">
+              {currentExercisePrs.length}
+            </p>
+          </div>
+          <div className="flex min-w-0 flex-col justify-between rounded-2xl border border-border/70 bg-card/60 p-3.5 shadow-xs sm:p-5">
+            <span className="truncate text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Volumen total
+            </span>
+            <p className="mt-1.5 truncate text-xl font-black tabular-nums tracking-tight text-foreground sm:text-3xl">
+              {totalVolumeAllSessions > 0
+                ? `${totalVolumeAllSessions.toLocaleString("es-MX")} kg`
+                : "0 kg"}
+            </p>
+          </div>
+        </section>
+
+        <aside className="order-2 flex min-w-0 flex-col gap-6 lg:order-1 lg:col-span-4 lg:sticky lg:top-[calc(96px+1.5rem)] lg:self-start">
           <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl transition-all hover:shadow-lg">
             <CardHeader className="pb-5 pt-6 px-6">
               <div className="flex items-center gap-4">
@@ -604,30 +641,30 @@ export default async function ClientProgressPage() {
             </Card>
 
             <Card className="overflow-hidden border-border/80 shadow-md ring-1 ring-primary/5 rounded-3xl transition-all hover:shadow-lg">
-              <CardHeader className="pb-4 pt-6 px-6 border-b bg-muted/5">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
+              <CardHeader className="border-b bg-muted/5 px-4 pb-4 pt-5 sm:px-6 sm:pt-6">
+                <div className="flex min-w-0 items-center justify-between gap-3">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary">
                       <Trophy className="size-5 text-primary" aria-hidden />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg font-bold tracking-tight">
-                        Mis Récords Personales (PRs por Ejercicio)
+                    <div className="min-w-0">
+                      <CardTitle className="text-base font-bold tracking-tight sm:text-lg">
+                        Mis Récords Personales
                       </CardTitle>
                       <CardDescription className="text-xs font-medium">
-                        Mejores marcas históricas de carga y 1RM estimado (Epley)
+                        Mejores marcas históricas y 1RM estimado (Epley)
                       </CardDescription>
                     </div>
                   </div>
                   {currentExercisePrs.length > 0 && (
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold tabular-nums text-primary">
+                    <span className="shrink-0 whitespace-nowrap rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-extrabold tabular-nums text-primary">
                       {currentExercisePrs.length}{" "}
                       {currentExercisePrs.length === 1 ? "PR" : "PRs"}
                     </span>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 {currentExercisePrs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-10 text-center">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60 ring-1 ring-border/40">
@@ -645,19 +682,19 @@ export default async function ClientProgressPage() {
                     {currentExercisePrs.map((pr) => (
                       <div
                         key={pr.id}
-                        className="group relative flex flex-col justify-between gap-3 rounded-2xl border border-border/70 bg-muted/15 p-4 transition-all hover:border-primary/30 hover:bg-muted/25"
+                        className="group relative flex min-w-0 flex-col justify-between gap-3 rounded-2xl border border-border/70 bg-muted/15 p-3.5 transition-all hover:border-primary/30 hover:bg-muted/25 sm:p-4"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
+                        <div className="flex min-w-0 items-start justify-between gap-2">
+                          <p className="min-w-0 line-clamp-2 text-sm font-bold leading-snug text-foreground first-letter:uppercase">
                             {pr.name}
                           </p>
-                          <span className="shrink-0 rounded-lg border border-border/60 bg-background/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          <span className="shrink-0 whitespace-nowrap rounded-lg border border-border/60 bg-background/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                             {pr.dateLabel}
                           </span>
                         </div>
 
-                        <div className="flex items-end justify-between gap-2 pt-1">
-                          <div>
+                        <div className="flex min-w-0 items-end justify-between gap-2 pt-1">
+                          <div className="min-w-0">
                             <div className="flex items-baseline gap-1.5">
                               <span className="text-2xl font-black tabular-nums tracking-tight text-foreground">
                                 {pr.weightKg}
@@ -678,7 +715,7 @@ export default async function ClientProgressPage() {
                             )}
                           </div>
 
-                          <div className="rounded-xl border border-primary/20 bg-primary/10 px-2.5 py-1 text-right">
+                          <div className="shrink-0 whitespace-nowrap rounded-xl border border-primary/20 bg-primary/10 px-2.5 py-1 text-right">
                             <p className="text-[10px] font-bold uppercase tracking-wider text-primary/80">
                               1RM Est.
                             </p>

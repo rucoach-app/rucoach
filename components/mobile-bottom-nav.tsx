@@ -52,7 +52,7 @@ export function MobileBottomNav({ type }: { type: 'client' | 'admin' }) {
   return (
     <nav
       data-mobile-bottom-nav="true"
-      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-card border-t border-border/60 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.4)] safe-area-x pb-[calc(var(--inset-bottom)*0.45)]"
+      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-card border-t border-border/60 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.4)] safe-area-x pb-[calc(var(--inset-bottom)*0.6)]"
     >
       <ul className="flex justify-around items-center h-[52px] px-1 sm:px-2">
         {items.map((item) => {

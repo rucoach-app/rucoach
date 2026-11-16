@@ -62,6 +62,8 @@ export async function proxy(request: NextRequest) {
     '/welcome',
     '/offline',
     '/api/invitations',
+    '/opengraph-image',
+    '/twitter-image',
     '/favicon.ico',
     '/manifest.json',
     '/dev-sw.js',
@@ -129,6 +131,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|manifest\\.json|sw\\.js|push-sw\\.js|dev-sw\\.js|offline\\.html|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|opengraph-image|twitter-image|favicon.ico|manifest\\.json|sw\\.js|push-sw\\.js|dev-sw\\.js|offline\\.html|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

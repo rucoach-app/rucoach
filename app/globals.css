@@ -159,8 +159,8 @@ html {
 :root {
   --inset-top: max(env(safe-area-inset-top, 0px), var(--inset-top-fb, 0px));
   --inset-bottom: max(env(safe-area-inset-bottom, 0px), var(--inset-bottom-fb, 0px));
-  /* Barra inferior compacta: 52px + ~45% del home indicator (el indicador flota ~8px sobre el borde) */
-  --bottom-nav-h: calc(52px + var(--inset-bottom) * 0.45);
+  /* Barra inferior compacta: 52px + 60% del home indicator (~20px en iPhone 13, 0px en navegador/Android) */
+  --bottom-nav-h: calc(52px + var(--inset-bottom) * 0.6);
 }
 
 /* Safe area para todos los tamaños de iPhone (SE, Mini, Notch, Dynamic Island, Plus, Pro Max) */

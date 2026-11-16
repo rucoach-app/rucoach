@@ -50,6 +50,25 @@ export function PWASetup() {
       }
 
       let updateInterval: ReturnType<typeof setInterval> | null = null
+      let activeRegistration: ServiceWorkerRegistration | null = null
+      const hadController = Boolean(navigator.serviceWorker.controller)
+      let refreshing = false
+
+      const handleControllerChange = () => {
+        if (!hadController || refreshing) return
+        if (window.location.pathname.startsWith('/client/workout/start')) return
+        refreshing = true
+        window.location.reload()
+      }
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && activeRegistration) {
+          activeRegistration.update().catch(() => {})
+        }
+      }
+
+      navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
 
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
@@ -58,6 +77,8 @@ export function PWASetup() {
         )
         .then((registration) => {
           if (!registration) return
+          activeRegistration = registration
+          registration.update().catch(() => {})
           updateInterval = setInterval(() => {
             registration.update().catch(() => {})
           }, 60_000)
@@ -66,6 +87,8 @@ export function PWASetup() {
 
       return () => {
         if (updateInterval) clearInterval(updateInterval)
+        navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
         window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
         window.removeEventListener('appinstalled', handleAppInstalled)
       }
